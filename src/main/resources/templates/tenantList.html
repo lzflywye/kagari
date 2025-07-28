@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>テナント一覧</title>
+</head>
+
+<body>
+    <h1>予約可能なテナント一覧</h1>
+    <ul>
+        {#for tenant in tenants}
+        <li>
+            <a href="/public/reservations/tenant/{tenant.id}/services">
+                {tenant.name}
+            </a>
+            <p>{tenant.description}</p>
+        </li>
+        {/for}
+    </ul>
+    <p><a href="/">トップへ戻る</a></p>
+</body>
+
+</html>

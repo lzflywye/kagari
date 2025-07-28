@@ -43,7 +43,9 @@
         <h2>Welcome! You are logged in.</h2>
         <p>This is a protected page.</p>
         <p><a href="/secured">Go to Secured API</a></p>
-        <p><a href="/logout">Logout</a></p>
+        <form action="/logout" method="post" style="display:inline;">
+            <button type="submit">Logout</button>
+        </form>
     </div>
 </body>
 

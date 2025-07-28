@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{tenant.name}のサービス一覧</title>
+</head>
+
+<body>
+    <h1>{tenant.name}のサービス一覧</h1>
+    <h2>提供サービス</h2>
+    <ul>
+        {#for service in services}
+        <li>
+            <h3>{service.name}</h3>
+            <p>{service.description}</p>
+            <p>料金: {service.price}</p>
+            <a href="/public/reservations/service/{service.id}/slots">
+                このサービスの予約に進む
+            </a>
+        </li>
+        {/for}
+    </ul>
+    <p><a href="/public/reservations">テナント一覧に戻る</a></p>
+</body>
+
+</html>

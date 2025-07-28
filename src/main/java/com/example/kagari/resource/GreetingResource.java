@@ -1,4 +1,4 @@
-package com.example.kagari;
+package com.example.kagari.resource;
 
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;

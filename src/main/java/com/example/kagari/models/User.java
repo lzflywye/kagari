@@ -10,7 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "users")
+@Table(name = "kagari_users")
 @UserDefinition
 public class User extends PanacheEntity {
     @Username
@@ -20,6 +20,13 @@ public class User extends PanacheEntity {
     @Roles
     public String role;
 
+    /**
+     * Adds a new user to the database
+     * 
+     * @param username the username
+     * @param password the unencrypted password (it is encrypted with bcrypt)
+     * @param role     the comma-separated roles
+     */
     public static void add(String username, String password, String role) {
         User user = new User();
         user.username = username;

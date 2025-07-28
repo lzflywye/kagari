@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{service.name} 予約</title>
+</head>
+
+<body>
+    <h1>{service.name} 予約フォーム</h1>
+    <p>選択中のサービス: {service.name}</p>
+
+    {#if error}
+    <p style="color: red;">{error}</p>
+    {/if}
+
+    <form action="/public/reservations/review" method="post">
+        <input type="hidden" name="serviceId" value="{service.id}">
+
+        <h2>予約日時を選択</h2>
+        {#for slotAvailability in slotAvailabilities}
+        <h3>{slotAvailability.date} ({slotAvailability.date.getDayOfWeek()})</h3>
+        {#if slotAvailability.availableTimes.isEmpty}
+        <p>この日は空きがありません。</p>
+        {#else}
+        <div>
+            {#for time in slotAvailability.availableTimes}
+            <label>
+                <input type="radio" name="reservedDate" value="{slotAvailability.date}" required>
+                <input type="radio" name="startTime" value="{time}" required>
+                {time}
+            </label><br>
+            {/for}
+        </div>
+        {/if}
+        {/for}
+        {#if slotAvailabilities.stream().allMatch(sa -> sa.availableTimes.isEmpty())}
+        <p style="color: red;">全ての日に空きがありません。別のサービスや日をお選びください。</p>
+        {/if}
+
+        <h2>お客様情報入力</h2>
+        <label for="customerName">お名前:</label>
+        <input type="text" id="customerName" name="customerName" required><br><br>
+
+        <label for="customerPhone">電話番号:</label>
+        <input type="tel" id="customerPhone" name="customerPhone" required><br><br>
+
+        <label for="customerEmail">メールアドレス (任意):</label>
+        <input type="email" id="customerEmail" name="customerEmail"><br><br>
+
+        <label for="comments">コメント (任意):</label><br>
+        <textarea id="comments" name="comments" rows="4" cols="50"></textarea><br><br>
+
+        <button type="submit">予約内容を確認する</button>
+    </form>
+    <p><a href="/public/reservations/tenant/{service.tenant.id}/services">サービス一覧に戻る</a></p>
+</body>
+
+</html>

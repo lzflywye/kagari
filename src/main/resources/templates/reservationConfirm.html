@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>予約内容の確認</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+        }
+
+        .detail-item strong {
+            display: inline-block;
+            width: 120px;
+            color: #555;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .button-group button,
+        .button-group a {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .button-group button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .button-group a {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .button-group button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .button-group a:hover {
+            background-color: #5a6268;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>予約内容の確認</h1>
+
+        {#if error}
+        <p class="error-message">{error}</p>
+        {/if}
+
+        <div class="detail-item">
+            <strong>サービス名:</strong> {service.name}
+        </div>
+        <div class="detail-item">
+            <strong>日付:</strong> {reservedDate}
+        </div>
+        <div class="detail-item">
+            <strong>開始時刻:</strong> {startTime}
+        </div>
+        <div class="detail-item">
+            <strong>お名前:</strong> {customerName}
+        </div>
+        <div class="detail-item">
+            <strong>電話番号:</strong> {customerPhone}
+        </div>
+        <div class="detail-item">
+            <strong>コメント:</strong> {#if comments}{comments}{#else}なし{/if}
+        </div>
+
+        <div class="button-group">
+            <a href="/reservations/book?serviceId={service.id}&date={reservedDate}">修正する</a>
+            <form action="/reservations/confirm" method="post" style="display:inline;">
+                <input type="hidden" name="serviceId" value="{service.id}">
+                <input type="hidden" name="reservedDate" value="{reservedDate}">
+                <input type="hidden" name="startTime" value="{startTime}">
+                <input type="hidden" name="customerName" value="{customerName}">
+                <input type="hidden" name="customerPhone" value="{customerPhone}">
+                <input type="hidden" name="comments" value="{comments}">
+                <button type="submit">この内容で予約を確定する</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

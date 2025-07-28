@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>予約一覧</title>
+</head>
+
+<body>
+    <h1>予約一覧</h1>
+    {#if error}
+    <p style="color: red;">{error}</p>
+    {/if}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>サービス</th>
+                <th>日付</th>
+                <th>時間</th>
+                <th>顧客名</th>
+                <th>電話番号</th>
+                <th>ステータス</th>
+                <th>アクション</th>
+            </tr>
+        </thead>
+        <tbody>
+            {#for reservation in reservations}
+            <tr>
+                <td>{reservation.id}</td>
+                <td>{reservation.service.name}</td>
+                <td>{reservation.reservedDate}</td>
+                <td>{reservation.startTime}</td>
+                <td>{reservation.customerName}</td>
+                <td>{reservation.customerPhone}</td>
+                <td>{reservation.status}</td>
+                <td>
+                    <a href="/reservations/{reservation.id}">詳細</a>
+                    {#if reservation.status eq 'pending'}
+                    <form action="/reservations/{reservation.id}/confirm" method="post" style="display:inline;">
+                        <button type="submit">承認</button>
+                    </form>
+                    {/if}
+                </td>
+            </tr>
+            {/for}
+        </tbody>
+    </table>
+    <p><a href="/">トップへ戻る</a></p>
+</body>
+
+</html>
