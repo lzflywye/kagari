@@ -11,6 +11,7 @@ import com.example.kagari.models.Reservation;
 import com.example.kagari.models.ServiceEntity;
 import com.example.kagari.models.Tenant;
 import com.example.kagari.models.User;
+import com.example.kagari.models.UserTenant;
 
 import io.quarkus.runtime.StartupEvent;
 
@@ -37,6 +38,12 @@ public class Startup {
         testTenant.regularlyClosed = "SATURDAY, SUNDAY";
         testTenant.description = "";
         testTenant.persist();
+
+        User alice = User.find("username = ?1", "alice").firstResult();
+        UserTenant aliceTenant = new UserTenant();
+        aliceTenant.user = alice;
+        aliceTenant.tenant = testTenant;
+        aliceTenant.persist();
 
         ServiceEntity testService = new ServiceEntity();
         testService.name = "Test Service";
