@@ -38,8 +38,6 @@ public class PublicReservationResource {
     @Inject
     Template reservationConfirm;
     @Inject
-    Template reservationForm;
-    @Inject
     Template reservationMessage;
     @Inject
     Template serviceList;
@@ -180,9 +178,9 @@ public class PublicReservationResource {
                 .data("service", service)
                 .data("reservedDate", reservedDate.toString())
                 .data("startTime", startTime.toString())
-                .data("customerName", (customerName == null) ? customerName : "")
-                .data("customerPhone", (customerPhone == null) ? customerPhone : "")
-                .data("comments", (comments == null) ? comments : "");
+                .data("customerName", customerName)
+                .data("customerPhone", customerPhone)
+                .data("comments", comments);
     }
 
     @POST
