@@ -10,7 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "kagari_users")
+@Table(name = "users")
 @UserDefinition
 public class User extends PanacheEntity {
     @Username

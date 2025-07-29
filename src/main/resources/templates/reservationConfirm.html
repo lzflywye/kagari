@@ -56,21 +56,21 @@
             margin: 0 10px;
         }
 
-        .button-group button[type="submit"] {
+        .confirm-button button[type="submit"] {
             background-color: #28a745;
             color: white;
         }
 
-        .button-group a {
+        .fix-button button[type="submit"] {
             background-color: #6c757d;
             color: white;
         }
 
-        .button-group button[type="submit"]:hover {
+        .confirm-button button[type="submit"]:hover {
             background-color: #218838;
         }
 
-        .button-group a:hover {
+        .fix-button button[type="submit"]:hover {
             background-color: #5a6268;
         }
 
@@ -86,9 +86,9 @@
     <div class="container">
         <h1>予約内容の確認</h1>
 
-        {#if error}
+        {! {#if error}
         <p class="error-message">{error}</p>
-        {/if}
+        {/if} !}
 
         <div class="detail-item">
             <strong>サービス名:</strong> {service.name}
@@ -110,8 +110,16 @@
         </div>
 
         <div class="button-group">
-            <a href="/reservations/book?serviceId={service.id}&date={reservedDate}">修正する</a>
-            <form action="/reservations/confirm" method="post" style="display:inline;">
+            <form action="/public/reservations/customer-info" method="post" style="display:inline;" class="fix-button">
+                <input type="hidden" name="serviceId" value="{service.id}">
+                <input type="hidden" name="reservedDate" value="{reservedDate}">
+                <input type="hidden" name="startTime" value="{startTime}">
+                <input type="hidden" name="customerName" value="{customerName}">
+                <input type="hidden" name="customerPhone" value="{customerPhone}">
+                <input type="hidden" name="comments" value="{comments}">
+                <button type="submit">修正する</button>
+            </form>
+            <form action="/public/reservations/confirm" method="post" style="display:inline;" class="confirm-button">
                 <input type="hidden" name="serviceId" value="{service.id}">
                 <input type="hidden" name="reservedDate" value="{reservedDate}">
                 <input type="hidden" name="startTime" value="{startTime}">

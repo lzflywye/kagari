@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>お客様情報入力</title>
+</head>
+
+<body>
+    <h1>お客様情報入力</h1>
+    <p>選択中のサービス: {service.name}</p>
+    <p>選択日時: {reservedDate} {startTime}</p>
+
+    {! {#if error}
+    <p style="color: red;">{error}</p>
+    {/if} !}
+
+    <form action="/public/reservations/review" method="post">
+        <input type="hidden" name="serviceId" value="{service.id}">
+        <input type="hidden" name="reservedDate" value="{reservedDate}">
+        <input type="hidden" name="startTime" value="{startTime}">
+        <h2>お客様情報入力</h2>
+        <label for="customerName">お名前:</label>
+        <input type="text" id="customerName" name="customerName" value="{customerName}" required><br><br>
+
+        <label for="customerPhone">電話番号:</label>
+        <input type="tel" id="customerPhone" name="customerPhone" value="{customerPhone}" required><br><br>
+
+        <label for="comments">コメント (任意):</label><br>
+        <textarea id="comments" name="comments" rows="4" cols="50">{comments}</textarea><br><br>
+
+        <button type="submit">予約内容を確認する</button>
+    </form>
+    <p><a href="/public/reservations/service/{service.id}/select-time">日時選択に戻る</a></p>
+</body>
+
+</html>

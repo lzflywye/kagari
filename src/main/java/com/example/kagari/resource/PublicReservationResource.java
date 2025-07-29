@@ -5,7 +5,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
 
@@ -31,15 +34,19 @@ import jakarta.ws.rs.core.Response;
 public class PublicReservationResource {
 
     @Inject
-    Template tenantList;
-    @Inject
-    Template serviceList;
-    @Inject
-    Template reservationForm;
+    Template customerInfoForm;
     @Inject
     Template reservationConfirm;
     @Inject
+    Template reservationForm;
+    @Inject
     Template reservationMessage;
+    @Inject
+    Template serviceList;
+    @Inject
+    Template tenantList;
+    @Inject
+    Template timeSlotSelection;
 
     private final int SLOT_DURATION_MINUTES = 60;
 
@@ -67,29 +74,115 @@ public class PublicReservationResource {
     }
 
     @GET
-    @Path("/service/{serviceId}/slots")
-    public TemplateInstance showAvailableSlots(@jakarta.ws.rs.PathParam("serviceId") Long serviceId) {
+    @Path("/service/{serviceId}/select-time")
+    public TemplateInstance showTimeSlotSelection(@jakarta.ws.rs.PathParam("serviceId") Long serviceId) {
         ServiceEntity service = ServiceEntity.findById(serviceId);
         if (service == null) {
             return reservationMessage.data("message", "指定されたサービスが見つかりません。");
         }
 
+        Tenant tenant = service.tenant;
+        if (tenant == null) {
+            return reservationMessage.data("message", "サービスに紐づくテナント情報が見つかりません。");
+        }
+
         List<LocalDate> dates = new ArrayList<>();
+        List<String> columnHeaders = new ArrayList<>();
         LocalDate today = LocalDate.now();
         for (int i = 0; i < 7; i++) {
-            dates.add(today.plusDays(i));
+            LocalDate currentDate = today.plusDays(i);
+            dates.add(currentDate);
+            columnHeaders.add(currentDate.toString());
         }
 
-        List<SlotAvailability> slotAvailabilities = new ArrayList<>();
+        List<LocalTime> times = new ArrayList<>();
+        LocalTime currentTime = tenant.openTime;
+        LocalTime closeTime = tenant.closeTime;
+        while (currentTime.plusMinutes(SLOT_DURATION_MINUTES).isBefore(closeTime.plusMinutes(1))) {
+            times.add(currentTime);
+            currentTime = currentTime.plusMinutes(SLOT_DURATION_MINUTES);
+        }
+
+        Map<LocalDate, Map<LocalTime, Long>> reservedCountsByDateTime = new HashMap<>();
         for (LocalDate date : dates) {
-            List<LocalTime> availableTimes = getAvailableTimeSlots(service, date);
-            slotAvailabilities.add(new SlotAvailability(date, availableTimes));
+            List<Reservation> reservationsForDate = Reservation
+                    .find("service = ?1 AND reservedDate = ?2 AND status IN ('pending', 'confirmed')", service, date)
+                    .list();
+            Map<LocalTime, Long> countsForTime = reservationsForDate.stream()
+                    .collect(Collectors.groupingBy(res -> res.startTime, Collectors.counting()));
+            reservedCountsByDateTime.put(date, countsForTime);
         }
 
-        return reservationForm
+        List<ReservationRow> rows = new ArrayList<>();
+        boolean hasAnyAvailableSlots = false;
+
+        for (LocalTime timeHeader : times) {
+            List<ReservationCell> rowCells = new ArrayList<>();
+            for (LocalDate dateHeader : dates) {
+                boolean isAvailable;
+
+                DayOfWeek dayOfWeek = dateHeader.getDayOfWeek();
+                boolean isDayOff = tenant.getRegularlyClosedAsEnum().contains(dayOfWeek);
+
+                boolean isWithningOperatingHours = !(timeHeader.isBefore(tenant.openTime)
+                        || timeHeader.plusMinutes(SLOT_DURATION_MINUTES).isAfter(tenant.closeTime.plusMinutes(1)));
+
+                if (isDayOff || !isWithningOperatingHours) {
+                    isAvailable = false;
+                } else {
+                    long reservedCountInSlot = reservedCountsByDateTime.getOrDefault(dateHeader, new HashMap<>())
+                            .getOrDefault(timeHeader, 0L);
+
+                    if (reservedCountInSlot < tenant.capacityPerSlot) {
+                        isAvailable = true;
+                        hasAnyAvailableSlots = true;
+                    } else {
+                        isAvailable = false;
+                    }
+                }
+                rowCells.add(new ReservationCell(dateHeader, timeHeader, isAvailable));
+            }
+            rows.add(new ReservationRow(timeHeader, rowCells));
+        }
+
+        ReservationTableData reservationTableData = new ReservationTableData(columnHeaders, rows);
+
+        return timeSlotSelection
                 .data("service", service)
-                .data("slotAvailabilities", slotAvailabilities)
-                .data("today", today);
+                .data("reservationTableData", reservationTableData)
+                .data("hasAnyAvailableSlots", hasAnyAvailableSlots);
+    }
+
+    @POST
+    @Path("/customer-info")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public TemplateInstance showCustomerInfoForm(
+            @FormParam("serviceId") Long serviceId,
+            @FormParam("reservedDate") String reservedDateStr,
+            @FormParam("startTime") String startTimeStr,
+            @FormParam("customerName") String customerName,
+            @FormParam("customerPhone") String customerPhone,
+            @FormParam("comments") String comments) {
+
+        ServiceEntity service = ServiceEntity.findById(serviceId);
+        if (service == null) {
+            return reservationMessage.data("message", "指定されたサービスが見つかりません。");
+        }
+
+        LocalDate reservedDate = LocalDate.parse(reservedDateStr);
+        LocalTime startTime = LocalTime.parse(startTimeStr);
+
+        if (!isSlotAvailable(service, reservedDate, startTime)) {
+            return reservationMessage.data("message", "選択された時間枠は既に埋まっているか、利用できません。お手数ですが、もう一度時間を選択してください。");
+        }
+
+        return customerInfoForm
+                .data("service", service)
+                .data("reservedDate", reservedDate.toString())
+                .data("startTime", startTime.toString())
+                .data("customerName", (customerName == null) ? customerName : "")
+                .data("customerPhone", (customerPhone == null) ? customerPhone : "")
+                .data("comments", (comments == null) ? comments : "");
     }
 
     @POST
@@ -112,13 +205,13 @@ public class PublicReservationResource {
         LocalTime startTime = LocalTime.parse(startTimeStr);
 
         if (!isSlotAvailable(service, reservedDate, startTime)) {
-            return reservationMessage.data("message", "指定した時間に空きがなくなったため、ご予約が完了できませんでした。");
+            return reservationMessage.data("message", "選択された時間枠は既に埋まっているか、利用できません。お手数ですが、もう一度時間を選択してください。");
         }
 
         return reservationConfirm
                 .data("service", service)
-                .data("reservedDate", reservedDate)
-                .data("startTime", startTime)
+                .data("reservedDate", reservedDate.toString())
+                .data("startTime", startTime.toString())
                 .data("customerName", customerName)
                 .data("customerPhone", customerPhone)
                 .data("comments", comments);
@@ -185,46 +278,6 @@ public class PublicReservationResource {
         return reservationMessage.data("message", info);
     }
 
-    private List<LocalTime> getAvailableTimeSlots(ServiceEntity service, LocalDate date) {
-        Tenant tenant = service.tenant;
-        if (tenant == null) {
-            return List.of();
-        }
-
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        if (tenant.getRegularlyClosedAsEnum().contains(dayOfWeek)) {
-            return List.of();
-        }
-
-        List<LocalTime> allPossibleSlots = new ArrayList<>();
-        LocalTime current = tenant.openTime;
-        LocalTime endOfDay = tenant.closeTime;
-
-        while (current.plusMinutes(SLOT_DURATION_MINUTES).isBefore(endOfDay.plusMinutes(1))) {
-            allPossibleSlots.add(current);
-            current = current.plusMinutes(SLOT_DURATION_MINUTES);
-        }
-
-        List<Reservation> existingReservations = Reservation
-                .find("service = ?1 AND reservedDate = ?2 AND status IN ('pending', 'confirmed')", service, date)
-                .list();
-
-        List<LocalTime> availableSlots = new ArrayList<>();
-        for (LocalTime slot : allPossibleSlots) {
-            int reservedCountInSlot = 0;
-            for (Reservation res : existingReservations) {
-                if (res.startTime.equals(slot)) {
-                    reservedCountInSlot++;
-                }
-            }
-
-            if (reservedCountInSlot < tenant.capacityPerSlot) {
-                availableSlots.add(slot);
-            }
-        }
-        return availableSlots;
-    }
-
     private boolean isSlotAvailable(ServiceEntity service, LocalDate date, LocalTime startTime) {
         Tenant tenant = service.tenant;
 
@@ -256,6 +309,38 @@ public class PublicReservationResource {
         public SlotAvailability(LocalDate date, List<LocalTime> availableTimes) {
             this.date = date;
             this.availableTimes = availableTimes;
+        }
+    }
+
+    public static class ReservationCell {
+        public String date;
+        public String time;
+        public boolean isAvailable;
+
+        public ReservationCell(LocalDate date, LocalTime time, boolean isAvailable) {
+            this.date = date.toString();
+            this.time = time.toString();
+            this.isAvailable = isAvailable;
+        }
+    }
+
+    public static class ReservationRow {
+        public String rowHeaderTime;
+        public List<ReservationCell> cells;
+
+        public ReservationRow(LocalTime rowHeaderTime, List<ReservationCell> cells) {
+            this.rowHeaderTime = rowHeaderTime.toString();
+            this.cells = cells;
+        }
+    }
+
+    public static class ReservationTableData {
+        public List<String> columnHeaders;
+        public List<ReservationRow> rows;
+
+        public ReservationTableData(List<String> columnHeaders, List<ReservationRow> rows) {
+            this.columnHeaders = columnHeaders;
+            this.rows = rows;
         }
     }
 }

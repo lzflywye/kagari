@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 @Entity
@@ -19,6 +20,7 @@ public class Tenant extends PanacheEntity {
     public LocalTime closeTime;
     public int capacityPerSlot;
     public String regularlyClosed;
+    @Column(columnDefinition = "TEXT")
     public String description;
 
     public List<DayOfWeek> getRegularlyClosedAsEnum() {

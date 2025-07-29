@@ -3,37 +3,124 @@
 
 <head>
     <title>{service.name} 予約</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* 予約可能セルと不可セル用のスタイル */
+        .available-cell {
+            background-color: #e6ffe6;
+            cursor: pointer;
+        }
+
+        .not-available-cell {
+            background-color: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* ラジオボタンをセル全体に広げるためのスタイル */
+        .slot-cell-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slot-cell-content input[type="radio"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            /* ラジオボタン自体を隠す */
+            cursor: pointer;
+            /* 選択不可の場合は pointer-events: none; を直接適用 */
+        }
+
+        .slot-cell-content label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            line-height: normal;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        /* クリック不可のラジオボタンのカーソル */
+        .slot-cell-content input[type="radio"]:disabled+label {
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
     <h1>{service.name} 予約フォーム</h1>
-    <p>選択中のサービス: {service.name}</p>
+    {! <p>選択中のサービス: {service.name} (所要時間: {service.durationMinutes}分)</p> !}
 
-    {#if error}
+    {! {#if error}
     <p style="color: red;">{error}</p>
-    {/if}
+    {/if} !}
 
     <form action="/public/reservations/review" method="post">
         <input type="hidden" name="serviceId" value="{service.id}">
+        <input type="hidden" id="selectedDateTimeValue" name="selectedDateTime" required>
 
         <h2>予約日時を選択</h2>
-        {#for slotAvailability in slotAvailabilities}
-        <h3>{slotAvailability.date} ({slotAvailability.date.getDayOfWeek()})</h3>
-        {#if slotAvailability.availableTimes.isEmpty}
-        <p>この日は空きがありません。</p>
-        {#else}
-        <div>
-            {#for time in slotAvailability.availableTimes}
-            <label>
-                <input type="radio" name="reservedDate" value="{slotAvailability.date}" required>
-                <input type="radio" name="startTime" value="{time}" required>
-                {time}
-            </label><br>
-            {/for}
-        </div>
-        {/if}
-        {/for}
-        {#if slotAvailabilities.stream().allMatch(sa -> sa.availableTimes.isEmpty())}
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th> {#for colHeader in reservationTableData.columnHeaders}
+                    <th>{colHeader}</th>
+                    {/for}
+                </tr>
+            </thead>
+            <tbody>
+                {#for row in reservationTableData.rows}
+                <tr>
+                    <td>{row.rowHeaderTime}</td> {#for cell in row.cells}
+                    <td class="{cell.isAvailable ? 'available-cell' : 'not-available-cell'}">
+                        <div class="slot-cell-content">
+                            {#if cell.isAvailable}
+                            <label>
+                                <input type="radio" name="slotSelection" value="{cell.valueForForm}"
+                                    onclick="updateHiddenField(this)" required>
+                            </label>
+                            {#else}
+                            <label>
+                                <input type="radio" name="slotSelection" value="{cell.valueForForm}"
+                                    onclick="updateHiddenField(this)" disabled>
+                            </label>
+                            {/if}
+                        </div>
+                    </td>
+                    {/for}
+                </tr>
+                {/for}
+            </tbody>
+        </table>
+
+        {#if !hasAnyAvailableSlots}
         <p style="color: red;">全ての日に空きがありません。別のサービスや日をお選びください。</p>
         {/if}
 
@@ -50,9 +137,15 @@
         <label for="comments">コメント (任意):</label><br>
         <textarea id="comments" name="comments" rows="4" cols="50"></textarea><br><br>
 
-        <button type="submit">予約内容を確認する</button>
+        <button type="submit" {#if !hasAnyAvailableSlots}disabled{/if}>予約内容を確認する</button>
     </form>
     <p><a href="/public/reservations/tenant/{service.tenant.id}/services">サービス一覧に戻る</a></p>
+
+    <script>
+        function updateHiddenField(radio) {
+            document.getElementById('selectedDateTimeValue').value = radio.value;
+        }
+    </script>
 </body>
 
 </html>
