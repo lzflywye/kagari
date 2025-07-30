@@ -22,8 +22,10 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/admin/reservations")
 @Produces(MediaType.TEXT_HTML)
-public class ReservationResource {
+public class AdminReservationResource {
 
+    @Inject
+    Template reservationDetail;
     @Inject
     Template reservationList;
 
@@ -58,7 +60,7 @@ public class ReservationResource {
                     Response.Status.FORBIDDEN);
         }
 
-        return reservationList.data("reservation", reservation);
+        return reservationDetail.data("reservation", reservation);
     }
 
     @POST

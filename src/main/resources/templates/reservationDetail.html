@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>予約ID：{reservation.id}の詳細</title>
+    <style>
+    
+    </style>
+</head>
+
+<body>
+    <h1>予約詳細</h1>
+    {! {#if error}
+    <p style="color: red;">{error}</p>
+    {/if} !}
+    <p>サービス：{reservation.service.name}</p>
+    <p>予約日時：{reservation.reservedDate}T{reservation.startTime}</p>
+    <p>予約者名：{reservation.customerName}</p>
+    <p>電話番号：{reservation.customerPhone}</p>
+    <p>ステータス：{#if reservation.status == "pending"}
+        未確認
+        {#else if reservation.status == "confirmed"}
+        確認済み
+        {#else if reservation.status == "cancelled"}
+        キャンセル済み
+        {/if}
+    </p>
+    <p><a href="/admin/reservations">予約一覧に戻る</a></p>
+</body>
+
+</html>

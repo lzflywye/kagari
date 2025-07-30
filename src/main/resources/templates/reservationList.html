@@ -15,8 +15,7 @@
             <tr>
                 <th>ID</th>
                 <th>サービス</th>
-                <th>日付</th>
-                <th>時間</th>
+                <th>日時</th>
                 <th>顧客名</th>
                 <th>電話番号</th>
                 <th>ステータス</th>
@@ -28,15 +27,14 @@
             <tr>
                 <td>{reservation.id}</td>
                 <td>{reservation.service.name}</td>
-                <td>{reservation.reservedDate}</td>
-                <td>{reservation.startTime}</td>
+                <td>{reservation.reservedDate} {reservation.startTime}</td>
                 <td>{reservation.customerName}</td>
                 <td>{reservation.customerPhone}</td>
                 <td>{reservation.status}</td>
                 <td>
-                    <a href="/reservations/{reservation.id}">詳細</a>
+                    <a href="/admin/reservations/{reservation.id}">詳細</a>
                     {#if reservation.status eq 'pending'}
-                    <form action="/reservations/{reservation.id}/confirm" method="post" style="display:inline;">
+                    <form action="/admin/reservations/{reservation.id}/confirm" method="post" style="display:inline;">
                         <button type="submit">承認</button>
                     </form>
                     {/if}
@@ -45,7 +43,7 @@
             {/for}
         </tbody>
     </table>
-    <p><a href="/">トップへ戻る</a></p>
+    {! <p><a href="/">トップへ戻る</a></p> !}
 </body>
 
 </html>
