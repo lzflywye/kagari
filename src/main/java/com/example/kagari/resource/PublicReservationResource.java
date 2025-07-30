@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.jboss.logging.Logger;
-
 import com.example.kagari.models.Reservation;
 import com.example.kagari.models.ServiceEntity;
 import com.example.kagari.models.Tenant;
@@ -48,12 +46,9 @@ public class PublicReservationResource {
 
     private final int SLOT_DURATION_MINUTES = 60;
 
-    private static final Logger LOG = Logger.getLogger(PublicReservationResource.class);
-
     @GET
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance showTenantList() {
-        LOG.info("tenantList template instance: " + tenantList);
         List<Tenant> tenants = Tenant.listAll();
         return tenantList.data("tenants", tenants);
     }
