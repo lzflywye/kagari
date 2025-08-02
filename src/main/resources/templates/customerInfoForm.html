@@ -14,7 +14,7 @@
     <p style="color: red;">{error}</p>
     {/if} !}
 
-    <form action="/public/reservations/review" method="post">
+    <form action="/reservations/review" method="post">
         <input type="hidden" name="serviceId" value="{service.id}">
         <input type="hidden" name="reservedDate" value="{reservedDate}">
         <input type="hidden" name="startTime" value="{startTime}">
@@ -24,12 +24,12 @@
         <label for="customerPhone">電話番号:</label>
         <input type="tel" id="customerPhone" name="customerPhone" value="{customerPhone}" required><br><br>
 
-        <label for="comments">コメント (任意):</label><br>
-        <textarea id="comments" name="comments" rows="4" cols="50">{comments}</textarea><br><br>
+        <label for="description">コメント (任意):</label><br>
+        <textarea id="description" name="description" rows="4" cols="50">{description}</textarea><br><br>
 
         <button type="submit">予約内容を確認する</button>
     </form>
-    <p><a href="/public/reservations/service/{service.id}/select-time">日時選択に戻る</a></p>
+    <p><a href="/reservations/service/{service.id}/select-time">日時選択に戻る</a></p>
 </body>
 
 </html>

@@ -2,9 +2,9 @@
 <html>
 
 <head>
-    <title>予約ID：{reservation.id}の詳細</title>
+    <title>予約詳細</title>
     <style>
-    
+
     </style>
 </head>
 
@@ -13,7 +13,7 @@
     {! {#if error}
     <p style="color: red;">{error}</p>
     {/if} !}
-    <p>サービス：{reservation.service.name}</p>
+    <p>サービス：{reservation.tenantService.name}</p>
     <p>予約日時：{reservation.reservedDate}T{reservation.startTime}</p>
     <p>予約者名：{reservation.customerName}</p>
     <p>電話番号：{reservation.customerPhone}</p>

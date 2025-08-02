@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.example.kagari.models.Reservation;
-import com.example.kagari.models.ServiceEntity;
+import com.example.kagari.models.TenantService;
+import com.fasterxml.uuid.Generators;
 import com.example.kagari.models.Tenant;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
@@ -27,7 +29,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/public/reservations")
+@Path("/reservations")
 @Produces(MediaType.TEXT_HTML)
 public class PublicReservationResource {
 
@@ -55,12 +57,12 @@ public class PublicReservationResource {
 
     @GET
     @Path("/tenant/{tenantId}/services")
-    public TemplateInstance showServiceList(@jakarta.ws.rs.PathParam("tenantId") Long tenantId) {
+    public TemplateInstance showServiceList(@jakarta.ws.rs.PathParam("tenantId") UUID tenantId) {
         Tenant tenant = Tenant.findById(tenantId);
         if (tenant == null) {
             return reservationMessage.data("message", "指定されたテナントが見つかりません。");
         }
-        List<ServiceEntity> services = ServiceEntity.list("tenant.id", tenantId);
+        List<TenantService> services = TenantService.list("tenant.id", tenantId);
         return serviceList
                 .data("tenant", tenant)
                 .data("services", services);
@@ -68,8 +70,8 @@ public class PublicReservationResource {
 
     @GET
     @Path("/service/{serviceId}/select-time")
-    public TemplateInstance showTimeSlotSelection(@jakarta.ws.rs.PathParam("serviceId") Long serviceId) {
-        ServiceEntity service = ServiceEntity.findById(serviceId);
+    public TemplateInstance showTimeSlotSelection(@jakarta.ws.rs.PathParam("serviceId") UUID serviceId) {
+        TenantService service = TenantService.findById(serviceId);
         if (service == null) {
             return reservationMessage.data("message", "指定されたサービスが見つかりません。");
         }
@@ -99,7 +101,8 @@ public class PublicReservationResource {
         Map<LocalDate, Map<LocalTime, Long>> reservedCountsByDateTime = new HashMap<>();
         for (LocalDate date : dates) {
             List<Reservation> reservationsForDate = Reservation
-                    .find("service = ?1 AND reservedDate = ?2 AND status IN ('pending', 'confirmed')", service, date)
+                    .find("tenantService = ?1 AND reservedDate = ?2 AND status IN ('pending', 'confirmed')", service,
+                            date)
                     .list();
             Map<LocalTime, Long> countsForTime = reservationsForDate.stream()
                     .collect(Collectors.groupingBy(res -> res.startTime, Collectors.counting()));
@@ -150,14 +153,14 @@ public class PublicReservationResource {
     @Path("/customer-info")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public TemplateInstance showCustomerInfoForm(
-            @FormParam("serviceId") Long serviceId,
+            @FormParam("serviceId") UUID serviceId,
             @FormParam("reservedDate") String reservedDateStr,
             @FormParam("startTime") String startTimeStr,
             @FormParam("customerName") String customerName,
             @FormParam("customerPhone") String customerPhone,
-            @FormParam("comments") String comments) {
+            @FormParam("description") String description) {
 
-        ServiceEntity service = ServiceEntity.findById(serviceId);
+        TenantService service = TenantService.findById(serviceId);
         if (service == null) {
             return reservationMessage.data("message", "指定されたサービスが見つかりません。");
         }
@@ -175,21 +178,21 @@ public class PublicReservationResource {
                 .data("startTime", startTime.toString())
                 .data("customerName", customerName)
                 .data("customerPhone", customerPhone)
-                .data("comments", comments);
+                .data("description", description);
     }
 
     @POST
     @Path("/review")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public TemplateInstance reviewReservation(
-            @FormParam("serviceId") Long serviceId,
+            @FormParam("serviceId") UUID serviceId,
             @FormParam("reservedDate") String reservedDateStr,
             @FormParam("startTime") String startTimeStr,
             @FormParam("customerName") String customerName,
             @FormParam("customerPhone") String customerPhone,
-            @FormParam("comments") String comments) {
+            @FormParam("description") String description) {
 
-        ServiceEntity service = ServiceEntity.findById(serviceId);
+        TenantService service = TenantService.findById(serviceId);
         if (service == null) {
             return reservationMessage.data("message", "指定されたサービスが見つかりません。");
         }
@@ -207,7 +210,7 @@ public class PublicReservationResource {
                 .data("startTime", startTime.toString())
                 .data("customerName", customerName)
                 .data("customerPhone", customerPhone)
-                .data("comments", comments);
+                .data("description", description);
     }
 
     @POST
@@ -215,38 +218,39 @@ public class PublicReservationResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Transactional
     public Response confirmReservation(
-            @FormParam("serviceId") Long serviceId,
+            @FormParam("serviceId") UUID serviceId,
             @FormParam("reservedDate") String reservedDateStr,
             @FormParam("startTime") String startTimeStr,
             @FormParam("customerName") String customerName,
             @FormParam("customerPhone") String customerPhone,
             @FormParam("customerEmail") String customerEmail,
-            @FormParam("comments") String comments) {
+            @FormParam("description") String description) {
 
-        ServiceEntity service = ServiceEntity.findById(serviceId);
-        if (service == null) {
-            return Response.seeOther(URI.create("/public/reservations/error?message=ServiceNotFound")).build();
+        TenantService tenantService = TenantService.findById(serviceId);
+        if (tenantService == null) {
+            return Response.seeOther(URI.create("/reservations/error?message=ServiceNotFound")).build();
         }
 
         LocalDate reservedDate = LocalDate.parse(reservedDateStr);
         LocalTime startTime = LocalTime.parse(startTimeStr);
 
-        if (!isSlotAvailable(service, reservedDate, startTime)) {
-            return Response.seeOther(URI.create("/public/reservations/error?message=SlotNotAvailable")).build();
+        if (!isSlotAvailable(tenantService, reservedDate, startTime)) {
+            return Response.seeOther(URI.create("/reservations/error?message=SlotNotAvailable")).build();
         }
 
         Reservation reservation = new Reservation();
-        reservation.service = service;
+        reservation.id = Generators.timeBasedEpochGenerator().generate();
+        reservation.tenantService = tenantService;
         reservation.reservedDate = reservedDate;
         reservation.startTime = startTime;
         reservation.customerName = customerName;
         reservation.customerPhone = customerPhone;
-        reservation.comments = comments;
+        reservation.description = description;
         reservation.status = "pending";
 
         reservation.persist();
 
-        return Response.seeOther(URI.create("/public/reservations/success")).build();
+        return Response.seeOther(URI.create("/reservations/success")).build();
     }
 
     @GET
@@ -271,7 +275,7 @@ public class PublicReservationResource {
         return reservationMessage.data("message", info);
     }
 
-    private boolean isSlotAvailable(ServiceEntity service, LocalDate date, LocalTime startTime) {
+    private boolean isSlotAvailable(TenantService service, LocalDate date, LocalTime startTime) {
         Tenant tenant = service.tenant;
 
         if (tenant == null) {
@@ -289,7 +293,7 @@ public class PublicReservationResource {
         }
 
         long reservedCountInSlot = Reservation.find(
-                "service = ?1 AND reservedDate = ?2 AND startTime = ?3 AND status IN ('pending', 'confirmed')",
+                "tenantService = ?1 AND reservedDate = ?2 AND startTime = ?3 AND status IN ('pending', 'confirmed')",
                 service, date, startTime).count();
 
         return reservedCountInSlot < tenant.capacityPerSlot;

@@ -1,9 +1,10 @@
 package com.example.kagari.resource;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.example.kagari.models.Reservation;
-import com.example.kagari.models.UserTenant;
+import com.example.kagari.models.TenantUser;
 
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
@@ -35,11 +36,10 @@ public class AdminReservationResource {
     @GET
     @Authenticated
     public TemplateInstance listAll() {
-        Long tenantId = getLoggedInUser().tenant.id;
+        UUID tenantId = getLoggedInUser().tenant.id;
 
-        List<Reservation> reservations = Reservation.list("service.tenant.id",
+        List<Reservation> reservations = Reservation.list("tenantService.tenant.id",
                 tenantId);
-        // List<Reservation> reservations = Reservation.listAll();
 
         return reservationList.data("reservations", reservations);
     }
@@ -47,15 +47,15 @@ public class AdminReservationResource {
     @GET
     @Path("/{id}")
     @Authenticated
-    public TemplateInstance getReservationDetails(@PathParam("id") Long id) {
-        Long tenantId = getLoggedInUser().tenant.id;
+    public TemplateInstance getReservationDetails(@PathParam("id") UUID id) {
+        UUID tenantId = getLoggedInUser().tenant.id;
 
         Reservation reservation = Reservation.findById(id);
         if (reservation == null) {
             return reservationList.data("error", "Reservation not found.");
         }
 
-        if (!reservation.service.tenant.id.equals(tenantId)) {
+        if (!reservation.tenantService.tenant.id.equals(tenantId)) {
             throw new WebApplicationException("Forbidden: You do not have access to this reservation.",
                     Response.Status.FORBIDDEN);
         }
@@ -67,15 +67,15 @@ public class AdminReservationResource {
     @Path("/{id}/confirm")
     @Transactional
     @Authenticated
-    public Response confirmReservation(@PathParam("id") Long id) {
-        Long tenantId = getLoggedInUser().tenant.id;
+    public Response confirmReservation(@PathParam("id") UUID id) {
+        UUID tenantId = getLoggedInUser().tenant.id;
 
         Reservation reservation = Reservation.findById(id);
         if (reservation == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if (!reservation.service.tenant.id.equals(tenantId)) {
+        if (!reservation.tenantService.tenant.id.equals(tenantId)) {
             throw new WebApplicationException("Forbidden: You do not have access to confirm this reservation.",
                     Response.Status.FORBIDDEN);
         }
@@ -89,15 +89,15 @@ public class AdminReservationResource {
     @Path("/{id}/cancel")
     @Transactional
     @Authenticated
-    public Response cancellReservation(@PathParam("id") Long id) {
-        Long tenantId = getLoggedInUser().tenant.id;
+    public Response cancellReservation(@PathParam("id") UUID id) {
+        UUID tenantId = getLoggedInUser().tenant.id;
 
         Reservation reservation = Reservation.findById(id);
         if (reservation == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if (!reservation.service.tenant.id.equals(tenantId)) {
+        if (!reservation.tenantService.tenant.id.equals(tenantId)) {
             throw new WebApplicationException("Forbidden: You do not have access to confirm this reservation.",
                     Response.Status.FORBIDDEN);
         }
@@ -107,17 +107,17 @@ public class AdminReservationResource {
         return Response.ok().build();
     }
 
-    private UserTenant getLoggedInUser() {
+    private TenantUser getLoggedInUser() {
         if (securityIdentity == null || securityIdentity.getPrincipal() == null) {
             throw new WebApplicationException("Unauthorized: No security context available.",
                     Response.Status.UNAUTHORIZED);
         }
         String username = securityIdentity.getPrincipal().getName();
-        UserTenant userTenant = UserTenant.findByUsername(username);
-        if (userTenant == null || userTenant.tenant == null) {
+        TenantUser user = TenantUser.find("username", username).firstResult();
+        if (user == null || user.tenant == null) {
             throw new WebApplicationException("Forbidden: User or tenant not found.",
                     Response.Status.FORBIDDEN);
         }
-        return userTenant;
+        return user;
     }
 }

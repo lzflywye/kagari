@@ -13,7 +13,6 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
                 <th>サービス</th>
                 <th>日時</th>
                 <th>顧客名</th>
@@ -25,12 +24,18 @@
         <tbody>
             {#for reservation in reservations}
             <tr>
-                <td>{reservation.id}</td>
-                <td>{reservation.service.name}</td>
+                <td>{reservation.tenantService.name}</td>
                 <td>{reservation.reservedDate} {reservation.startTime}</td>
                 <td>{reservation.customerName}</td>
                 <td>{reservation.customerPhone}</td>
-                <td>{reservation.status}</td>
+                <td>
+                    {#if reservation.status == "pending"}
+                    未確認
+                    {#else if reservation.status == "confirmed"}
+                    確認済み
+                    {#else if reservation.status == "cancelled"}
+                    キャンセル済み
+                    {/if}</td>
                 <td>
                     <a href="/admin/reservations/{reservation.id}">詳細</a>
                     {#if reservation.status eq 'pending'}

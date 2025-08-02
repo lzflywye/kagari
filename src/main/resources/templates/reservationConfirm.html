@@ -106,26 +106,26 @@
             <strong>電話番号:</strong> {customerPhone}
         </div>
         <div class="detail-item">
-            <strong>コメント:</strong> {#if comments}{comments}{#else}なし{/if}
+            <strong>コメント:</strong> {#if description}{description}{#else}なし{/if}
         </div>
 
         <div class="button-group">
-            <form action="/public/reservations/customer-info" method="post" style="display:inline;" class="fix-button">
+            <form action="/reservations/customer-info" method="post" style="display:inline;" class="fix-button">
                 <input type="hidden" name="serviceId" value="{service.id}">
                 <input type="hidden" name="reservedDate" value="{reservedDate}">
                 <input type="hidden" name="startTime" value="{startTime}">
                 <input type="hidden" name="customerName" value="{customerName}">
                 <input type="hidden" name="customerPhone" value="{customerPhone}">
-                <input type="hidden" name="comments" value="{comments}">
+                <input type="hidden" name="description" value="{description}">
                 <button type="submit">修正する</button>
             </form>
-            <form action="/public/reservations/confirm" method="post" style="display:inline;" class="confirm-button">
+            <form action="/reservations/confirm" method="post" style="display:inline;" class="confirm-button">
                 <input type="hidden" name="serviceId" value="{service.id}">
                 <input type="hidden" name="reservedDate" value="{reservedDate}">
                 <input type="hidden" name="startTime" value="{startTime}">
                 <input type="hidden" name="customerName" value="{customerName}">
                 <input type="hidden" name="customerPhone" value="{customerPhone}">
-                <input type="hidden" name="comments" value="{comments}">
+                <input type="hidden" name="description" value="{description}">
                 <button type="submit">この内容で予約を確定する</button>
             </form>
         </div>

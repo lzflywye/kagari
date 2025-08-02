@@ -97,7 +97,7 @@
                 <td class="{cell.isAvailable ? 'available-cell' : 'not-available-cell'}">
                     <div class="slot-cell-content">
                         {#if cell.isAvailable}
-                        <form action="/public/reservations/customer-info" method="post">
+                        <form action="/reservations/customer-info" method="post">
                             <input type="hidden" name="serviceId" value="{service.id}">
                             <input type="hidden" name="reservedDate" value="{cell.date}">
                             <input type="hidden" name="startTime" value="{cell.time}">
@@ -117,7 +117,7 @@
     {#if !hasAnyAvailableSlots}
     <p style="color: red;">全ての日に空きがありません。別のサービスや日をお選びください。</p>
     {/if}
-    <p><a href="/public/reservations/tenant/{service.tenant.id}/services">サービス一覧に戻る</a></p>
+    <p><a href="/reservations/tenant/{service.tenant.id}/services">サービス一覧に戻る</a></p>
 </body>
 
 </html>
