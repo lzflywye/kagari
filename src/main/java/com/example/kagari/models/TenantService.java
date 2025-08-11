@@ -3,7 +3,6 @@ package com.example.kagari.models;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
