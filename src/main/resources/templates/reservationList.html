@@ -3,52 +3,164 @@
 
 <head>
     <title>予約一覧</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #eef1f6;
+            color: #555;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+
+        .status.pending {
+            background-color: #f0ad4e;
+        }
+
+        .status.confirmed {
+            background-color: #5cb85c;
+        }
+
+        .status.cancelled {
+            background-color: #d9534f;
+        }
+
+        .status-text {
+            font-weight: bold;
+        }
+
+        .actions a,
+        .actions button {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .actions a {
+            color: #337ab7;
+            background-color: #f0f8ff;
+            border: 1px solid #cce5ff;
+        }
+
+        .actions button[type="submit"] {
+            background-color: #5cb85c;
+            color: #fff;
+        }
+
+        .actions form {
+            display: inline;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>予約一覧</h1>
-    {! {#if error}
-    <p style="color: red;">{error}</p>
-    {/if} !}
-    <table>
-        <thead>
-            <tr>
-                <th>サービス</th>
-                <th>日時</th>
-                <th>顧客名</th>
-                <th>電話番号</th>
-                <th>ステータス</th>
-                <th>アクション</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#for reservation in reservations}
-            <tr>
-                <td>{reservation.tenantService.name}</td>
-                <td>{reservation.reservedDate} {reservation.startTime}</td>
-                <td>{reservation.customerName}</td>
-                <td>{reservation.customerPhone}</td>
-                <td>
-                    {#if reservation.status == "pending"}
-                    未確認
-                    {#else if reservation.status == "confirmed"}
-                    確認済み
-                    {#else if reservation.status == "cancelled"}
-                    キャンセル済み
-                    {/if}</td>
-                <td>
-                    <a href="/admin/reservations/{reservation.id}">詳細</a>
-                    {#if reservation.status eq 'pending'}
-                    <form action="/admin/reservations/{reservation.id}/confirm" method="post" style="display:inline;">
-                        <button type="submit">承認</button>
-                    </form>
-                    {/if}
-                </td>
-            </tr>
-            {/for}
-        </tbody>
-    </table>
-    {! <p><a href="/">トップへ戻る</a></p> !}
+    <div class="container">
+        <h1>予約一覧</h1>
+        {! {#if error}
+        <p class="error">{error}</p>
+        {/if} !}
+        <table>
+            <thead>
+                <tr>
+                    <th>サービス</th>
+                    <th>日時</th>
+                    <th>顧客名</th>
+                    <th>電話番号</th>
+                    <th>ステータス</th>
+                    <th>アクション</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#for reservation in reservations}
+                <tr>
+                    <td>{reservation.tenantService.name}</td>
+                    <td>{reservation.reservedDate} {reservation.startTime}</td>
+                    <td>{reservation.customerName}</td>
+                    <td>{reservation.customerPhone}</td>
+                    <td>
+                        {#if reservation.status == "pending"}
+                        <span class="status pending">未確認</span>
+                        {#else if reservation.status == "confirmed"}
+                        <span class="status confirmed">確認済み</span>
+                        {#else if reservation.status == "cancelled"}
+                        <span class="status cancelled">キャンセル済み</span>
+                        {/if}
+                    </td>
+                    <td>
+                        <a href="/admin/reservations/{reservation.id}">詳細</a>
+                        {#if reservation.status eq 'pending'}
+                        <form action="/admin/reservations/{reservation.id}/confirm" method="post"
+                            style="display:inline;">
+                            <button type="submit">承認</button>
+                        </form>
+                        {/if}
+                    </td>
+                </tr>
+                {/for}
+            </tbody>
+        </table>
+        {! <p><a href="/">トップへ戻る</a></p> !}
+    </div>
 </body>
 
 </html>
