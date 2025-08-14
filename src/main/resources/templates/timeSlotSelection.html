@@ -2,122 +2,271 @@
 <html>
 
 <head>
-    <title>{service.name} 時間選択</title>
+    <title>{service.name} 予約日時選択</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .service-info {
+            text-align: center;
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: #d9534f;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .no-slots-message {
+            color: #d9534f;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 600px;
+            /* PC向け */
         }
 
         th,
         td {
-            border: 1px solid #ccc;
-            padding: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 0;
             text-align: center;
+            height: 50px;
+            box-sizing: border-box;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #f0f8ff;
+            color: #333;
+            font-weight: 500;
+            white-space: nowrap;
+            padding: 10px;
         }
 
+        td:first-child {
+            background-color: #f0f8ff;
+            font-weight: 500;
+            color: #333;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Available cell styles */
         .available-cell {
-            background-color: #e6ffe6;
-            cursor: pointer;
-        }
-
-        .not-available-cell {
-            background-color: #f0f0f0;
-            color: #999;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .slot-cell-content {
+            background-color: #ffffff;
+            /* 通常の白色に */
             position: relative;
+            /* ボタンを配置するために必要 */
+        }
+
+        .available-cell button {
+            background-color: transparent;
+            border: none;
             width: 100%;
             height: 100%;
+            padding: 0;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #007bff;
+            /* 〇の文字色 */
+            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .slot-cell-content input[type="radio"] {
+        .available-cell:hover {
+            background-color: #f0f8ff;
+            /* ホバーで少し色を付ける */
+        }
+
+        /* Not available cell styles */
+        .not-available-cell {
+            background-color: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .not-available-cell::after {
+            content: '×';
+            /* ✖マークの表示 */
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem;
+            font-weight: bold;
         }
 
-        .slot-cell-content label {
-            display: block;
-            width: 100%;
-            height: 100%;
-            line-height: normal;
-            padding-top: 8px;
-            padding-bottom: 8px;
-            box-sizing: border-box;
-            cursor: pointer;
+        .back-link-wrapper {
+            text-align: center;
+            margin-top: 30px;
         }
 
-        button {
-            width: 1rem;
-            height: 1rem;
+        .back-link {
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* スマートフォン向けスタイル */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .service-info {
+                font-size: 0.9rem;
+            }
+
+            .table-wrapper {
+                overflow-x: scroll;
+            }
+
+            table {
+                min-width: 100%;
+                /* 全幅に広げる */
+                table-layout: fixed;
+            }
+
+            th,
+            td {
+                font-size: 0.8rem;
+                height: 40px;
+            }
+
+            th:first-child,
+            td:first-child {
+                font-size: 0.9rem;
+            }
+
+            .available-cell button {
+                font-size: 0.9rem;
+            }
+
+            .not-available-cell::after {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h1>{service.name} 予約日時選択</h1>
-    {! <p>選択中のサービス: {service.name} (所要時間: {service.durationMinutes}分)</p> !}
+    <div class="container">
+        <h1>{service.name} 予約日時選択</h1>
+        <p class="service-info">
+            選択中のサービス: {service.name}
+        </p>
 
-    {! {#if error}
-    <p style="color: red;">{error}</p>
-    {/if} !}
+        <h2>予約日時を選択</h2>
 
-    <h2>予約日時を選択</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        {#for colHeader in reservationTableData.columnHeaders}
+                        <th>{colHeader}日</th>
+                        {/for}
+                    </tr>
+                </thead>
+                <tbody>
+                    {#for row in reservationTableData.rows}
+                    <tr>
+                        <td>{row.rowHeaderTime}</td>
+                        {#for cell in row.cells}
+                        <td class="{cell.isAvailable ? 'available-cell' : 'not-available-cell'}">
+                            {#if cell.isAvailable}
+                            <form action="/reservations/customer-info" method="post">
+                                <input type="hidden" name="serviceId" value="{service.id}">
+                                <input type="hidden" name="reservedDate" value="{cell.date}">
+                                <input type="hidden" name="startTime" value="{cell.time}">
+                                <button type="submit" aria-label="{cell.date} {cell.time}の予約">〇</button>
+                            </form>
+                            {/if}
+                        </td>
+                        {/for}
+                    </tr>
+                    {/for}
+                </tbody>
+            </table>
+        </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th></th>
-                {#for colHeader in reservationTableData.columnHeaders}
-                <th>{colHeader}</th>
-                {/for}
-            </tr>
-        </thead>
-        <tbody>
-            {#for row in reservationTableData.rows}
-            <tr>
-                <td>{row.rowHeaderTime}</td>
-                {#for cell in row.cells}
-                <td class="{cell.isAvailable ? 'available-cell' : 'not-available-cell'}">
-                    <div class="slot-cell-content">
-                        {#if cell.isAvailable}
-                        <form action="/reservations/customer-info" method="post">
-                            <input type="hidden" name="serviceId" value="{service.id}">
-                            <input type="hidden" name="reservedDate" value="{cell.date}">
-                            <input type="hidden" name="startTime" value="{cell.time}">
-                            <button type="submit" class="date-time-button" />
-                        </form>
-                        {#else}
-                        <button class="date-time-button" disabled />
-                        {/if}
-                    </div>
-                </td>
-                {/for}
-            </tr>
-            {/for}
-        </tbody>
-    </table>
-
-    {#if !hasAnyAvailableSlots}
-    <p style="color: red;">全ての日に空きがありません。別のサービスや日をお選びください。</p>
-    {/if}
-    <p><a href="/reservations/tenant/{service.tenant.id}/services">サービス一覧に戻る</a></p>
+        {#if !hasAnyAvailableSlots}
+        <p class="no-slots-message">全ての日に空きがありません。別のサービスや日をお選びください。</p>
+        {/if}
+    </div>
+    <p class="back-link-wrapper">
+        <a href="/reservations/tenant/{service.tenant.id}/services" class="back-link">サービス一覧に戻る</a>
+    </p>
 </body>
 
 </html>

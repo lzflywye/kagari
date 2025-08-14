@@ -3,33 +3,159 @@
 
 <head>
     <title>お客様情報入力</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .info-section {
+            text-align: center;
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-section p {
+            margin: 5px 0;
+        }
+
+        .error-message {
+            color: #d9534f;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        form {
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="tel"]:focus,
+        textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .submit-button {
+            display: block;
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-link-wrapper {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link {
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>お客様情報入力</h1>
-    <p>選択中のサービス: {service.name}</p>
-    <p>選択日時: {reservedDate} {startTime}</p>
+    <div class="container">
+        <h1>お客様情報入力</h1>
+        <div class="info-section">
+            <p>選択中のサービス: {service.name}</p>
+            <p>選択日時: {reservedDate} {startTime}</p>
+        </div>
 
-    {! {#if error}
-    <p style="color: red;">{error}</p>
-    {/if} !}
+        <form action="/reservations/review" method="post">
+            <input type="hidden" name="serviceId" value="{service.id}">
+            <input type="hidden" name="reservedDate" value="{reservedDate}">
+            <input type="hidden" name="startTime" value="{startTime}">
 
-    <form action="/reservations/review" method="post">
-        <input type="hidden" name="serviceId" value="{service.id}">
-        <input type="hidden" name="reservedDate" value="{reservedDate}">
-        <input type="hidden" name="startTime" value="{startTime}">
-        <label for="customerName">お名前:</label>
-        <input type="text" id="customerName" name="customerName" value="{customerName}" required><br><br>
+            <label for="customerName">お名前:</label>
+            <input type="text" id="customerName" name="customerName" value="{customerName}" required>
 
-        <label for="customerPhone">電話番号:</label>
-        <input type="tel" id="customerPhone" name="customerPhone" value="{customerPhone}" required><br><br>
+            <label for="customerPhone">電話番号:</label>
+            <input type="tel" id="customerPhone" name="customerPhone" value="{customerPhone}" required>
 
-        <label for="description">コメント (任意):</label><br>
-        <textarea id="description" name="description" rows="4" cols="50">{description}</textarea><br><br>
+            <label for="description">伝えておきたい事項 (任意):</label>
+            <textarea id="description" name="description" rows="4" value="{description}"></textarea>
 
-        <button type="submit">予約内容を確認する</button>
-    </form>
-    <p><a href="/reservations/service/{service.id}/select-time">日時選択に戻る</a></p>
+            <button type="submit" class="submit-button">予約内容を確認する</button>
+        </form>
+    </div>
+    <p class="back-link-wrapper">
+        <a href="/reservations/service/{service.id}/select-time" class="back-link">日時選択に戻る</a>
+    </p>
 </body>
 
 </html>

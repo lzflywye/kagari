@@ -3,24 +3,162 @@
 
 <head>
     <title>{tenant.name}のサービス一覧</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 1.8rem;
+            /* スマホ向けに調整 */
+        }
+
+        h2 {
+            text-align: center;
+            color: #555;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 400;
+            font-size: 1.1rem;
+            /* スマホ向けに調整 */
+        }
+
+        .service-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .service-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: #fcfcfc;
+            transition: box-shadow 0.2s ease-in-out;
+        }
+
+        .service-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            /* スマホ向けに調整 */
+            color: #333;
+            margin: 0 0 10px;
+        }
+
+        .service-description {
+            font-size: 0.9rem;
+            /* スマホ向けに調整 */
+            color: #666;
+            margin: 0 0 10px;
+        }
+
+        .service-price {
+            font-size: 0.9rem;
+            /* スマホ向けに調整 */
+            color: #008000;
+            font-weight: 600;
+            margin: 0 0 15px;
+        }
+
+        .reserve-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            /* ボタンのサイズを調整 */
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            /* ボタンの文字サイズを調整 */
+            transition: background-color 0.2s;
+        }
+
+        .reserve-button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-link-wrapper {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link {
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            /* 戻るリンクの文字サイズを調整 */
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 画面幅が小さい時の調整 */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .service-item {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <h1>{tenant.name}のサービス一覧</h1>
-    <h2>提供サービス</h2>
-    <ul>
-        {#for service in services}
-        <li>
-            <h3>{service.name}</h3>
-            <p>{service.description}</p>
-            <p>料金: {service.price}</p>
-            <a href="/reservations/service/{service.id}/select-time">
-                このサービスの予約に進む
-            </a>
-        </li>
-        {/for}
-    </ul>
-    <p><a href="/reservations">テナント一覧に戻る</a></p>
+    <div class="container">
+        <h1>{tenant.name}のサービス一覧</h1>
+        <h2>提供サービス</h2>
+        <ul class="service-list">
+            {#for service in services}
+            <li class="service-item">
+                <h3>{service.name}</h3>
+                <p class="service-description">{service.description}</p>
+                <p class="service-price">料金: ￥{service.price.toBigInteger}</p>
+                <a href="/reservations/service/{service.id}/select-time" class="reserve-button">
+                    このサービスの予約に進む
+                </a>
+            </li>
+            {/for}
+        </ul>
+    </div>
+    <p class="back-link-wrapper">
+        <a href="/reservations" class="back-link">テナント一覧に戻る</a>
+    </p>
 </body>
 
 </html>

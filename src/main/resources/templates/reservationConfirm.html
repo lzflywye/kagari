@@ -7,77 +7,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
-            margin: 20px;
-            background-color: #f4f4f4;
+            background-color: #f4f7f6;
             color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
             max-width: 600px;
-            margin: auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
 
         h1 {
             color: #0056b3;
             text-align: center;
+            font-weight: 600;
+            font-size: 1.8rem;
             margin-bottom: 30px;
         }
 
         .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
         }
 
-        .detail-item strong {
-            display: inline-block;
-            width: 120px;
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
             color: #555;
+            flex: 0 0 140px;
+            /* PCでの幅を固定 */
+        }
+
+        .detail-value {
+            flex-grow: 1;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .description-value {
+            white-space: pre-wrap;
+            text-align: right;
         }
 
         .button-group {
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            /* スマホでは縦に並べる */
+            gap: 15px;
             margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
         }
 
-        .button-group button,
-        .button-group a {
-            padding: 10px 20px;
+        .button-group form {
+            display: block;
+        }
+
+        .button-group button {
+            width: 100%;
+            padding: 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 16px;
-            text-decoration: none;
-            display: inline-block;
-            margin: 0 10px;
+            transition: background-color 0.2s;
         }
 
-        .confirm-button button[type="submit"] {
+        .confirm-button button {
             background-color: #28a745;
             color: white;
         }
 
-        .fix-button button[type="submit"] {
+        .fix-button button {
             background-color: #6c757d;
             color: white;
         }
 
-        .confirm-button button[type="submit"]:hover {
+        .confirm-button button:hover {
             background-color: #218838;
         }
 
-        .fix-button button[type="submit"]:hover {
+        .fix-button button:hover {
             background-color: #5a6268;
         }
 
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-top: 20px;
+        /* PC向けレイアウト */
+        @media (min-width: 601px) {
+            .button-group {
+                flex-direction: row;
+                /* PCでは横に並べる */
+                justify-content: flex-end;
+            }
+
+            .button-group form {
+                flex: 1;
+            }
+
+            .button-group button {
+                width: auto;
+            }
         }
     </style>
 </head>
@@ -86,31 +134,35 @@
     <div class="container">
         <h1>予約内容の確認</h1>
 
-        {! {#if error}
-        <p class="error-message">{error}</p>
-        {/if} !}
-
         <div class="detail-item">
-            <strong>サービス名:</strong> {service.name}
+            <span class="detail-label">サービス名:</span>
+            <span class="detail-value">{service.name}</span>
         </div>
         <div class="detail-item">
-            <strong>日付:</strong> {reservedDate}
+            <span class="detail-label">日付:</span>
+            <span class="detail-value">{reservedDate}</span>
         </div>
         <div class="detail-item">
-            <strong>開始時刻:</strong> {startTime}
+            <span class="detail-label">開始時刻:</span>
+            <span class="detail-value">{startTime}</span>
         </div>
         <div class="detail-item">
-            <strong>お名前:</strong> {customerName}
+            <span class="detail-label">お名前:</span>
+            <span class="detail-value">{customerName}</span>
         </div>
         <div class="detail-item">
-            <strong>電話番号:</strong> {customerPhone}
+            <span class="detail-label">電話番号:</span>
+            <span class="detail-value">{customerPhone}</span>
         </div>
         <div class="detail-item">
-            <strong>コメント:</strong> {#if description}{description}{#else}なし{/if}
+            <span class="detail-label">伝えておきたい事項 (任意):</span>
+            <span class="detail-value description-value">
+                {#if description}{description}{#else}なし{/if}
+            </span>
         </div>
 
         <div class="button-group">
-            <form action="/reservations/customer-info" method="post" style="display:inline;" class="fix-button">
+            <form action="/reservations/customer-info" method="post" class="fix-button">
                 <input type="hidden" name="serviceId" value="{service.id}">
                 <input type="hidden" name="reservedDate" value="{reservedDate}">
                 <input type="hidden" name="startTime" value="{startTime}">
@@ -119,7 +171,7 @@
                 <input type="hidden" name="description" value="{description}">
                 <button type="submit">修正する</button>
             </form>
-            <form action="/reservations/confirm" method="post" style="display:inline;" class="confirm-button">
+            <form action="/reservations/confirm" method="post" class="confirm-button">
                 <input type="hidden" name="serviceId" value="{service.id}">
                 <input type="hidden" name="reservedDate" value="{reservedDate}">
                 <input type="hidden" name="startTime" value="{startTime}">

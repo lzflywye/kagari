@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +88,7 @@ public class PublicReservationResource {
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = today.plusDays(i);
             dates.add(currentDate);
-            columnHeaders.add(currentDate.toString());
+            columnHeaders.add(currentDate.format(DateTimeFormatter.ofPattern("d")));
         }
 
         List<LocalTime> times = new ArrayList<>();
