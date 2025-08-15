@@ -1,5 +1,6 @@
 package com.example.kagari.resource;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -22,7 +24,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/admin/reservations")
-@Produces(MediaType.TEXT_HTML)
 public class AdminReservationResource {
 
     @Inject
@@ -34,6 +35,7 @@ public class AdminReservationResource {
     SecurityIdentity securityIdentity;
 
     @GET
+    @Produces(MediaType.TEXT_HTML)
     @Authenticated
     public TemplateInstance listAll() {
         UUID tenantId = getLoggedInUser().tenant.id;
@@ -45,6 +47,7 @@ public class AdminReservationResource {
     }
 
     @GET
+    @Produces(MediaType.TEXT_HTML)
     @Path("/{id}")
     @Authenticated
     public TemplateInstance getReservationDetails(@PathParam("id") UUID id) {
@@ -64,6 +67,8 @@ public class AdminReservationResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_HTML)
     @Path("/{id}/confirm")
     @Transactional
     @Authenticated
@@ -82,10 +87,36 @@ public class AdminReservationResource {
 
         reservation.status = "confirmed";
         reservation.persist();
-        return Response.ok().build();
+        return Response.seeOther(URI.create("/admin/reservations")).build();
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/{id}/complete")
+    @Transactional
+    @Authenticated
+    public Response completeReservation(@PathParam("id") UUID id) {
+        UUID tenantId = getLoggedInUser().tenant.id;
+
+        Reservation reservation = Reservation.findById(id);
+        if (reservation == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        if (!reservation.tenantService.tenant.id.equals(tenantId)) {
+            throw new WebApplicationException("Forbidden: You do not have access to confirm this reservation.",
+                    Response.Status.FORBIDDEN);
+        }
+
+        reservation.status = "completed";
+        reservation.persist();
+        return Response.seeOther(URI.create("/admin/reservations")).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_HTML)
     @Path("/{id}/cancel")
     @Transactional
     @Authenticated
@@ -102,9 +133,9 @@ public class AdminReservationResource {
                     Response.Status.FORBIDDEN);
         }
 
-        reservation.status = "canceled";
+        reservation.status = "cancelled";
         reservation.persist();
-        return Response.ok().build();
+        return Response.seeOther(URI.create("/admin/reservations")).build();
     }
 
     private TenantUser getLoggedInUser() {

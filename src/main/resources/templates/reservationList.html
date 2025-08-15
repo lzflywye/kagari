@@ -69,6 +69,10 @@
             background-color: #5cb85c;
         }
 
+        .status.completed {
+            background-color: #2992f5;
+        }
+
         .status.cancelled {
             background-color: #d9534f;
         }
@@ -116,9 +120,6 @@
 <body>
     <div class="container">
         <h1>予約一覧</h1>
-        {! {#if error}
-        <p class="error">{error}</p>
-        {/if} !}
         <table>
             <thead>
                 <tr>
@@ -127,7 +128,7 @@
                     <th>顧客名</th>
                     <th>電話番号</th>
                     <th>ステータス</th>
-                    <th>アクション</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -141,19 +142,16 @@
                         {#if reservation.status == "pending"}
                         <span class="status pending">未確認</span>
                         {#else if reservation.status == "confirmed"}
-                        <span class="status confirmed">確認済み</span>
+                        <span class="status confirmed">確認</span>
+                        {#else if reservation.status == "completed"}
+                        <span class="status completed">完了</span>
                         {#else if reservation.status == "cancelled"}
-                        <span class="status cancelled">キャンセル済み</span>
+                        <span class="status cancelled">キャンセル</span>
                         {/if}
                     </td>
                     <td>
                         <a href="/admin/reservations/{reservation.id}">詳細</a>
-                        {#if reservation.status eq 'pending'}
-                        <form action="/admin/reservations/{reservation.id}/confirm" method="post"
-                            style="display:inline;">
-                            <button type="submit">承認</button>
-                        </form>
-                        {/if}
+
                     </td>
                 </tr>
                 {/for}
