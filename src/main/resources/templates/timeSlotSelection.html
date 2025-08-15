@@ -245,7 +245,7 @@
                         {#for cell in row.cells}
                         <td class="{cell.isAvailable ? 'available-cell' : 'not-available-cell'}">
                             {#if cell.isAvailable}
-                            <form action="/reservations/customer-info" method="post">
+                            <form action="/services/customer-info" method="post">
                                 <input type="hidden" name="serviceId" value="{service.id}">
                                 <input type="hidden" name="reservedDate" value="{cell.date}">
                                 <input type="hidden" name="startTime" value="{cell.time}">
@@ -265,7 +265,7 @@
         {/if}
     </div>
     <p class="back-link-wrapper">
-        <a href="/reservations/tenant/{service.tenant.id}/services" class="back-link">サービス一覧に戻る</a>
+        <a href="/services" class="back-link">サービス一覧に戻る</a>
     </p>
 </body>
 

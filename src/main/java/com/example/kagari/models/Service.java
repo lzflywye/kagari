@@ -7,18 +7,13 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tenant_services")
-public class TenantService extends PanacheEntityBase {
+@Table(name = "services")
+public class Service extends PanacheEntityBase {
     @Id
     public UUID id;
-    @ManyToOne
-    @JoinColumn(name = "tenant_id")
-    public Tenant tenant;
     public String name;
     @Column(columnDefinition = "TEXT")
     public String description;

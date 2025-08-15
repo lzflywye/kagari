@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>{tenant.name}のサービス一覧</title>
+    <title>サービス一覧</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -141,7 +141,7 @@
 
 <body>
     <div class="container">
-        <h1>{tenant.name}のサービス一覧</h1>
+        <h1>サービス一覧</h1>
         <h2>提供サービス</h2>
         <ul class="service-list">
             {#for service in services}
@@ -149,16 +149,13 @@
                 <h3>{service.name}</h3>
                 <p class="service-description">{service.description}</p>
                 <p class="service-price">料金: ￥{service.price.toBigInteger}</p>
-                <a href="/reservations/service/{service.id}/select-time" class="reserve-button">
+                <a href="/services/{service.id}/select-time" class="reserve-button">
                     このサービスの予約に進む
                 </a>
             </li>
             {/for}
         </ul>
     </div>
-    <p class="back-link-wrapper">
-        <a href="/reservations" class="back-link">テナント一覧に戻る</a>
-    </p>
 </body>
 
 </html>

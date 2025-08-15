@@ -18,8 +18,8 @@ public class Reservation extends PanacheEntityBase {
     @Id
     public UUID id;
     @ManyToOne
-    @JoinColumn(name = "tenant_service_id")
-    public TenantService tenantService;
+    @JoinColumn(name = "service_id")
+    public Service service;
     @Column(name = "reserved_date")
     public LocalDate reservedDate;
     @Column(name = "start_time")

@@ -136,7 +136,7 @@
             <p>選択日時: {reservedDate} {startTime}</p>
         </div>
 
-        <form action="/reservations/review" method="post">
+        <form action="/services/review" method="post">
             <input type="hidden" name="serviceId" value="{service.id}">
             <input type="hidden" name="reservedDate" value="{reservedDate}">
             <input type="hidden" name="startTime" value="{startTime}">
@@ -147,14 +147,14 @@
             <label for="customerPhone">電話番号:</label>
             <input type="tel" id="customerPhone" name="customerPhone" value="{customerPhone}" required>
 
-            <label for="description">伝えておきたい事項 (任意):</label>
+            <label for="description">連絡事項 (任意):</label>
             <textarea id="description" name="description" rows="4" value="{description}"></textarea>
 
             <button type="submit" class="submit-button">予約内容を確認する</button>
         </form>
     </div>
     <p class="back-link-wrapper">
-        <a href="/reservations/service/{service.id}/select-time" class="back-link">日時選択に戻る</a>
+        <a href="/services/{service.id}/select-time" class="back-link">日時選択に戻る</a>
     </p>
 </body>
 

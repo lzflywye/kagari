@@ -155,14 +155,14 @@
             <span class="detail-value">{customerPhone}</span>
         </div>
         <div class="detail-item">
-            <span class="detail-label">伝えておきたい事項 (任意):</span>
+            <span class="detail-label">連絡事項 (任意):</span>
             <span class="detail-value description-value">
                 {#if description}{description}{#else}なし{/if}
             </span>
         </div>
 
         <div class="button-group">
-            <form action="/reservations/customer-info" method="post" class="fix-button">
+            <form action="/services/customer-info" method="post" class="fix-button">
                 <input type="hidden" name="serviceId" value="{service.id}">
                 <input type="hidden" name="reservedDate" value="{reservedDate}">
                 <input type="hidden" name="startTime" value="{startTime}">
@@ -171,7 +171,7 @@
                 <input type="hidden" name="description" value="{description}">
                 <button type="submit">修正する</button>
             </form>
-            <form action="/reservations/confirm" method="post" class="confirm-button">
+            <form action="/services/confirm" method="post" class="confirm-button">
                 <input type="hidden" name="serviceId" value="{service.id}">
                 <input type="hidden" name="reservedDate" value="{reservedDate}">
                 <input type="hidden" name="startTime" value="{startTime}">

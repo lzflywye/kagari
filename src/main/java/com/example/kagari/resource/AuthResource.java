@@ -1,5 +1,7 @@
 package com.example.kagari.resource;
 
+import java.net.URI;
+
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.CurrentIdentityAssociation;
 import io.quarkus.vertx.http.runtime.security.FormAuthenticationMechanism;
@@ -21,6 +23,6 @@ public class AuthResource {
             throw new UnauthorizedException("Not authenticated");
         }
         FormAuthenticationMechanism.logout(identity.getIdentity());
-        return Response.noContent().build();
+        return Response.seeOther(URI.create("/login.html")).build();
     }
 }

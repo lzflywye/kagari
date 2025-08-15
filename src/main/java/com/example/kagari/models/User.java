@@ -10,13 +10,12 @@ import io.quarkus.security.jpa.UserDefinition;
 import io.quarkus.security.jpa.Username;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tenant_users")
+@Table(name = "users")
 @UserDefinition
-public class TenantUser extends PanacheEntityBase {
+public class User extends PanacheEntityBase {
     @Id
     public UUID id;
     @Username
@@ -25,8 +24,6 @@ public class TenantUser extends PanacheEntityBase {
     public String password;
     @Roles
     public String role;
-    @ManyToOne
-    public Tenant tenant;
 
     /**
      * Adds a new user to the database
@@ -36,7 +33,7 @@ public class TenantUser extends PanacheEntityBase {
      * @param role     the comma-separated roles
      */
     public static void add(String username, String password, String role) {
-        TenantUser user = new TenantUser();
+        User user = new User();
         user.username = username;
         user.password = BcryptUtil.bcryptHash(password);
         user.role = role;

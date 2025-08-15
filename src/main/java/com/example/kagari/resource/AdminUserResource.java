@@ -3,7 +3,7 @@ package com.example.kagari.resource;
 import java.util.List;
 import java.util.UUID;
 
-import com.example.kagari.models.TenantUser;
+import com.example.kagari.models.User;
 
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
@@ -16,6 +16,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/admin/users")
+@RolesAllowed("admin")
 public class AdminUserResource {
 
     @Inject
@@ -27,9 +28,8 @@ public class AdminUserResource {
     @GET
     @Path("/")
     @Produces(MediaType.TEXT_HTML)
-    @RolesAllowed("admin")
     public TemplateInstance getUserList() {
-        List<TenantUser> users = TenantUser.listAll();
+        List<User> users = User.listAll();
         return userList.data("users", users);
     }
 
@@ -37,7 +37,7 @@ public class AdminUserResource {
     @Path("/{id}")
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance getUserDetail(@PathParam("id") UUID id) {
-        TenantUser user = TenantUser.findById(id);
+        User user = User.findById(id);
         return userDetail.data("user", user);
     }
 

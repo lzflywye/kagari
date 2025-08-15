@@ -1,5 +1,7 @@
 package com.example.kagari.resource;
 
+import java.net.URI;
+
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;
@@ -7,6 +9,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/")
 public class GreetingResource {
@@ -15,6 +18,12 @@ public class GreetingResource {
 
     public GreetingResource(SecurityIdentity securityIdentity) {
         this.securityIdentity = securityIdentity;
+    }
+
+    @GET
+    @Path("/")
+    public Response redirectIndex() {
+        return Response.seeOther(URI.create("/services")).build();
     }
 
     @GET

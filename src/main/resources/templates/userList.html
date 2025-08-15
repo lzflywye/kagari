@@ -70,7 +70,6 @@
                 <tr>
                     <th>ユーザー名</th>
                     <th>権限</th>
-                    <th>担当テナント</th>
                 </tr>
             </thead>
             <tbody>
@@ -78,7 +77,6 @@
                 <tr>
                     <td><a href="/admin/users/{user.id}">{user.username}</a></td>
                     <td><a href="/admin/users/{user.id}">{user.role}</a></td>
-                    <td><a href="/admin/users/{user.id}">{user.tenant.name}</a></td>
                 </tr>
                 {/for}
             </tbody>

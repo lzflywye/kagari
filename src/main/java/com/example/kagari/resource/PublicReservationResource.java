@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.example.kagari.models.Reservation;
-import com.example.kagari.models.TenantService;
+import com.example.kagari.models.Service;
 import com.fasterxml.uuid.Generators;
-import com.example.kagari.models.Tenant;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
@@ -30,7 +30,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/reservations")
+@Path("/services")
 @Produces(MediaType.TEXT_HTML)
 public class PublicReservationResource {
 
@@ -43,43 +43,31 @@ public class PublicReservationResource {
     @Inject
     Template serviceList;
     @Inject
-    Template tenantList;
-    @Inject
     Template timeSlotSelection;
 
+    private final LocalTime OPEN_TIME = LocalTime.of(10, 0, 0);
+    private final LocalTime CLOSED_TIME = LocalTime.of(18, 0, 0);
     private final int SLOT_DURATION_MINUTES = 60;
+    private final int CAPACITY = 20;
+    private final Set<DayOfWeek> REGULARLY_CLOSED = Set.of(
+            DayOfWeek.SATURDAY,
+            DayOfWeek.SUNDAY);
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance showTenantList() {
-        List<Tenant> tenants = Tenant.listAll();
-        return tenantList.data("tenants", tenants);
+    @Path("/")
+    public TemplateInstance getServiceList() {
+
+        List<Service> services = Service.listAll();
+        return serviceList.data("services", services);
     }
 
     @GET
-    @Path("/tenant/{tenantId}/services")
-    public TemplateInstance showServiceList(@jakarta.ws.rs.PathParam("tenantId") UUID tenantId) {
-        Tenant tenant = Tenant.findById(tenantId);
-        if (tenant == null) {
-            return reservationMessage.data("message", "指定されたテナントが見つかりません。");
-        }
-        List<TenantService> services = TenantService.list("tenant.id", tenantId);
-        return serviceList
-                .data("tenant", tenant)
-                .data("services", services);
-    }
-
-    @GET
-    @Path("/service/{serviceId}/select-time")
+    @Path("/{serviceId}/select-time")
     public TemplateInstance showTimeSlotSelection(@jakarta.ws.rs.PathParam("serviceId") UUID serviceId) {
-        TenantService service = TenantService.findById(serviceId);
+        Service service = Service.findById(serviceId);
         if (service == null) {
             return reservationMessage.data("message", "指定されたサービスが見つかりません。");
-        }
-
-        Tenant tenant = service.tenant;
-        if (tenant == null) {
-            return reservationMessage.data("message", "サービスに紐づくテナント情報が見つかりません。");
         }
 
         List<LocalDate> dates = new ArrayList<>();
@@ -92,9 +80,8 @@ public class PublicReservationResource {
         }
 
         List<LocalTime> times = new ArrayList<>();
-        LocalTime currentTime = tenant.openTime;
-        LocalTime closeTime = tenant.closeTime;
-        while (currentTime.plusMinutes(SLOT_DURATION_MINUTES).isBefore(closeTime.plusMinutes(1))) {
+        LocalTime currentTime = OPEN_TIME;
+        while (currentTime.plusMinutes(SLOT_DURATION_MINUTES).isBefore(CLOSED_TIME.plusMinutes(1))) {
             times.add(currentTime);
             currentTime = currentTime.plusMinutes(SLOT_DURATION_MINUTES);
         }
@@ -102,7 +89,8 @@ public class PublicReservationResource {
         Map<LocalDate, Map<LocalTime, Long>> reservedCountsByDateTime = new HashMap<>();
         for (LocalDate date : dates) {
             List<Reservation> reservationsForDate = Reservation
-                    .find("tenantService = ?1 AND reservedDate = ?2 AND status IN ('pending', 'confirmed')", service,
+                    .find("service = ?1 AND reservedDate = ?2 AND status IN ('pending', 'confirmed', 'completed')",
+                            service,
                             date)
                     .list();
             Map<LocalTime, Long> countsForTime = reservationsForDate.stream()
@@ -119,10 +107,10 @@ public class PublicReservationResource {
                 boolean isAvailable;
 
                 DayOfWeek dayOfWeek = dateHeader.getDayOfWeek();
-                boolean isDayOff = tenant.getRegularlyClosedAsEnum().contains(dayOfWeek);
+                boolean isDayOff = REGULARLY_CLOSED.contains(dayOfWeek);
 
-                boolean isWithningOperatingHours = !(timeHeader.isBefore(tenant.openTime)
-                        || timeHeader.plusMinutes(SLOT_DURATION_MINUTES).isAfter(tenant.closeTime.plusMinutes(1)));
+                boolean isWithningOperatingHours = !(timeHeader.isBefore(OPEN_TIME)
+                        || timeHeader.plusMinutes(SLOT_DURATION_MINUTES).isAfter(CLOSED_TIME.plusMinutes(1)));
 
                 if (isDayOff || !isWithningOperatingHours) {
                     isAvailable = false;
@@ -130,7 +118,7 @@ public class PublicReservationResource {
                     long reservedCountInSlot = reservedCountsByDateTime.getOrDefault(dateHeader, new HashMap<>())
                             .getOrDefault(timeHeader, 0L);
 
-                    if (reservedCountInSlot < tenant.capacityPerSlot) {
+                    if (reservedCountInSlot < CAPACITY) {
                         isAvailable = true;
                         hasAnyAvailableSlots = true;
                     } else {
@@ -161,7 +149,7 @@ public class PublicReservationResource {
             @FormParam("customerPhone") String customerPhone,
             @FormParam("description") String description) {
 
-        TenantService service = TenantService.findById(serviceId);
+        Service service = Service.findById(serviceId);
         if (service == null) {
             return reservationMessage.data("message", "指定されたサービスが見つかりません。");
         }
@@ -193,7 +181,7 @@ public class PublicReservationResource {
             @FormParam("customerPhone") String customerPhone,
             @FormParam("description") String description) {
 
-        TenantService service = TenantService.findById(serviceId);
+        Service service = Service.findById(serviceId);
         if (service == null) {
             return reservationMessage.data("message", "指定されたサービスが見つかりません。");
         }
@@ -227,21 +215,21 @@ public class PublicReservationResource {
             @FormParam("customerEmail") String customerEmail,
             @FormParam("description") String description) {
 
-        TenantService tenantService = TenantService.findById(serviceId);
-        if (tenantService == null) {
-            return Response.seeOther(URI.create("/reservations/error?message=ServiceNotFound")).build();
+        Service service = Service.findById(serviceId);
+        if (service == null) {
+            return Response.seeOther(URI.create("/services/error?message=ServiceNotFound")).build();
         }
 
         LocalDate reservedDate = LocalDate.parse(reservedDateStr);
         LocalTime startTime = LocalTime.parse(startTimeStr);
 
-        if (!isSlotAvailable(tenantService, reservedDate, startTime)) {
-            return Response.seeOther(URI.create("/reservations/error?message=SlotNotAvailable")).build();
+        if (!isSlotAvailable(service, reservedDate, startTime)) {
+            return Response.seeOther(URI.create("/services/error?message=SlotNotAvailable")).build();
         }
 
         Reservation reservation = new Reservation();
         reservation.id = Generators.timeBasedEpochGenerator().generate();
-        reservation.tenantService = tenantService;
+        reservation.service = service;
         reservation.reservedDate = reservedDate;
         reservation.startTime = startTime;
         reservation.customerName = customerName;
@@ -251,7 +239,7 @@ public class PublicReservationResource {
 
         reservation.persist();
 
-        return Response.seeOther(URI.create("/reservations/success")).build();
+        return Response.seeOther(URI.create("/services/success")).build();
     }
 
     @GET
@@ -276,28 +264,22 @@ public class PublicReservationResource {
         return reservationMessage.data("message", info);
     }
 
-    private boolean isSlotAvailable(TenantService service, LocalDate date, LocalTime startTime) {
-        Tenant tenant = service.tenant;
-
-        if (tenant == null) {
-            return false;
-        }
-
+    private boolean isSlotAvailable(Service service, LocalDate date, LocalTime startTime) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
-        if (tenant.getRegularlyClosedAsEnum().contains(dayOfWeek)) {
+        if (REGULARLY_CLOSED.contains(dayOfWeek)) {
             return false;
         }
 
-        if (startTime.isBefore(tenant.openTime)
-                || startTime.plusMinutes(SLOT_DURATION_MINUTES).isAfter(tenant.closeTime.plusMinutes(1))) {
+        if (startTime.isBefore(OPEN_TIME)
+                || startTime.plusMinutes(SLOT_DURATION_MINUTES).isAfter(CLOSED_TIME.plusMinutes(1))) {
             return false;
         }
 
         long reservedCountInSlot = Reservation.find(
-                "tenantService = ?1 AND reservedDate = ?2 AND startTime = ?3 AND status IN ('pending', 'confirmed')",
+                "service = ?1 AND reservedDate = ?2 AND startTime = ?3 AND status IN ('pending', 'confirmed', 'completed')",
                 service, date, startTime).count();
 
-        return reservedCountInSlot < tenant.capacityPerSlot;
+        return reservedCountInSlot < CAPACITY;
     }
 
     public static class SlotAvailability {
