@@ -48,7 +48,7 @@ public class PublicReservationResource {
     private final LocalTime OPEN_TIME = LocalTime.of(10, 0, 0);
     private final LocalTime CLOSED_TIME = LocalTime.of(18, 0, 0);
     private final int SLOT_DURATION_MINUTES = 60;
-    private final int CAPACITY = 20;
+    private final int CAPACITY = 5;
     private final Set<DayOfWeek> REGULARLY_CLOSED = Set.of(
             DayOfWeek.SATURDAY,
             DayOfWeek.SUNDAY);
