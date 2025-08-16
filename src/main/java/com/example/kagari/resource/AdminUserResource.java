@@ -20,17 +20,17 @@ import jakarta.ws.rs.core.MediaType;
 public class AdminUserResource {
 
     @Inject
-    Template userList;
+    Template adminUserList;
 
     @Inject
-    Template userDetail;
+    Template adminUserDetail;
 
     @GET
     @Path("/")
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getUserList() {
+    public TemplateInstance getAdminUserList() {
         List<User> users = User.listAll();
-        return userList.data("users", users);
+        return adminUserList.data("users", users);
     }
 
     @GET
@@ -38,7 +38,7 @@ public class AdminUserResource {
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance getUserDetail(@PathParam("id") UUID id) {
         User user = User.findById(id);
-        return userDetail.data("user", user);
+        return adminUserDetail.data("user", user);
     }
 
     // @POST

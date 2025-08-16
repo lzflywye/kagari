@@ -1,6 +1,6 @@
 
-INSERT INTO services(id, name, description, price, is_active)
-VALUES ('00000000-0000-0000-0000-000000000000', 'Test Service', '', 1000, true);
+INSERT INTO services(id, name, description, price)
+VALUES ('00000000-0000-0000-0000-000000000000', 'Test Service', '', 1000);
 
 INSERT INTO users(id, username, password, role)
 VALUES ('00000000-0000-0000-0000-000000000000', 'admin', '$2a$10$dE/4wyjAM9hncjKDoQ.IIeTY9zsel55iwJhSW3GIP0s5TeKHGjVzi', 'admin'),

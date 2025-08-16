@@ -15,9 +15,7 @@ public class Service extends PanacheEntityBase {
     @Id
     public UUID id;
     public String name;
+    public BigDecimal price;
     @Column(columnDefinition = "TEXT")
     public String description;
-    public BigDecimal price;
-    @Column(name = "is_active")
-    public boolean isActive;
 }

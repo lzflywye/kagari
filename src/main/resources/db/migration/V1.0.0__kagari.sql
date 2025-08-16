@@ -16,7 +16,6 @@
         name varchar(255),
         price numeric(38,2),
         description TEXT,
-        is_active boolean,
         primary key (id)
     );
 
