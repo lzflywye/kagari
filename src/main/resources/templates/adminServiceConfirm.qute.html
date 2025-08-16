@@ -2,8 +2,9 @@
 <html>
 
 <head>
-    <title>サービス詳細</title>
+    <title>サービス内容の確認</title>
     <style>
+        /* 編集画面と同じスタイルシートを使用 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f4f7f6;
@@ -24,6 +25,7 @@
             width: 100%;
             margin: 20px auto;
             border-left: 5px solid #007bff;
+            /* 確認画面は青で区別 */
         }
 
         h1 {
@@ -55,39 +57,40 @@
             text-align: right;
         }
 
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            color: #fff;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .status-badge.pending {
-            background-color: #f0ad4e;
-        }
-
-        .status-badge.confirmed {
-            background-color: #5cb85c;
-        }
-
-        .status-badge.cancelled {
-            background-color: #d9534f;
-        }
-
-        .back-link {
-            display: block;
-            text-align: center;
+        .action-button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
             margin-top: 30px;
-            padding: 10px 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            /* 保存ボタンは緑色 */
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
             background-color: #e9ecef;
             color: #495057;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
         }
 
-        .back-link:hover {
+        .btn-secondary:hover {
             background-color: #dee2e6;
         }
 
@@ -97,53 +100,35 @@
             font-weight: bold;
             margin-bottom: 20px;
         }
-
-        .action-button-group {
-            display: flex;
-            justify-content: flex-end;
-            /* 右寄せ */
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .btn-edit-main {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            background-color: #17a2b8;
-            /* 水色 */
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-edit-main:hover {
-            background-color: #138496;
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>サービス詳細</h1>
+        <h1>サービス内容の確認</h1>
+
         <div class="detail-item">
             <strong>サービス名</strong>
-            <span>{service.name}</span>
+            <span>{name}</span>
         </div>
         <div class="detail-item">
             <strong>料金</strong>
-            <span>¥{service.price.toBigInteger}</span>
+            <span>{price}</span>
         </div>
         <div class="detail-item">
             <strong>説明</strong>
-            <span>{service.description}</span>
+            <span>{description}</span>
         </div>
+
         <div class="action-button-group">
-            <a href="/admin/services/{service.id}/edit" class="btn-edit-main">内容を変更する</a>
+            <a href="{back_url}" class="btn btn-secondary">編集に戻る</a>
+            <form action="{submit_url}" method="post">
+                <input type="hidden" name="name" value="{name}">
+                <input type="hidden" name="price" value="{price}">
+                <input type="hidden" name="description" value="{description}">
+                <button type="submit" class="btn btn-primary">保存する</button>
+            </form>
         </div>
-        <a href="/admin/services" class="back-link">サービス一覧に戻る</a>
     </div>
 </body>
 
