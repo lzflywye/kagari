@@ -6,14 +6,56 @@
     <style>
         /* 編集画面と同じスタイルシートを使用 */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: sans-serif;
             background-color: #f4f7f6;
             margin: 0;
-            padding: 20px;
-            display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
+        }
+
+        /* ナビゲーションヘッダー */
+        .main-header {
+            background-color: #34495e;
+            color: #fff;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .main-nav li a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            transition: background-color 0.3s ease;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .main-nav li a:hover {
+            background-color: #557088;
+        }
+
+        .main-nav li.nav-right-group {
+            margin-left: auto;
+            display: flex;
+        }
+
+        .main-nav li.nav-right-group a {
+            /* 右寄せグループ内のリンクのスタイルを調整 */
+            padding: 10px 15px;
+            margin-left: 10px;
         }
 
         .container {
@@ -23,7 +65,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             width: 100%;
-            margin: 20px auto;
+            margin: 30px auto 20px;
             border-left: 5px solid #007bff;
             /* 確認画面は青で区別 */
         }
@@ -104,6 +146,19 @@
 </head>
 
 <body>
+    <header class="main-header">
+        <nav class="main-nav">
+            <ul>
+                <li><a href="/admin/reservations">予約一覧</a></li>
+                <li><a href="/admin/services">サービス一覧</a></li>
+                <li class="nav-right-group">
+                    <a href="/change-password">パスワード変更</a>
+                    <a href="/logout">ログアウト</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
     <div class="container">
         <h1>サービス内容の確認</h1>
 

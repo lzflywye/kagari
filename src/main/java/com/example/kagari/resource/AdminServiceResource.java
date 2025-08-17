@@ -10,7 +10,6 @@ import com.fasterxml.uuid.Generators;
 
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
-import io.vertx.ext.web.Session;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;

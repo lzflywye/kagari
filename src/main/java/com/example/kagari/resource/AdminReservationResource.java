@@ -24,9 +24,9 @@ import jakarta.ws.rs.core.Response;
 public class AdminReservationResource {
 
     @Inject
-    Template reservationDetail;
+    Template adminReservationDetail;
     @Inject
-    Template reservationList;
+    Template adminReservationList;
 
     @GET
     @Path("/")
@@ -35,7 +35,7 @@ public class AdminReservationResource {
 
         List<Reservation> reservations = Reservation.listAll();
 
-        return reservationList.data("reservations", reservations);
+        return adminReservationList.data("reservations", reservations);
     }
 
     @GET
@@ -45,10 +45,10 @@ public class AdminReservationResource {
 
         Reservation reservation = Reservation.findById(id);
         if (reservation == null) {
-            return reservationList.data("error", "Reservation not found.");
+            return adminReservationList.data("error", "Reservation not found.");
         }
 
-        return reservationDetail.data("reservation", reservation);
+        return adminReservationDetail.data("reservation", reservation);
     }
 
     @POST
