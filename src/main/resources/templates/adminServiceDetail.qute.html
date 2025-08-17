@@ -105,16 +105,14 @@
             font-weight: bold;
         }
 
-        .status-badge.pending {
-            background-color: #f0ad4e;
+        .status-badge.active {
+            background-color: #28a745;
+            color: #fff;
         }
 
-        .status-badge.confirmed {
-            background-color: #5cb85c;
-        }
-
-        .status-badge.cancelled {
-            background-color: #d9534f;
+        .status-badge.inactive {
+            background-color: #6c757d;
+            color: #fff;
         }
 
         .back-link {
@@ -148,21 +146,46 @@
             margin-top: 25px;
         }
 
-        .btn-edit-main {
+        .btn {
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
             color: #fff;
             font-weight: bold;
             cursor: pointer;
-            background-color: #17a2b8;
-            /* 水色 */
             text-decoration: none;
             transition: background-color 0.3s ease;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-edit-main {
+            background-color: #17a2b8;
         }
 
         .btn-edit-main:hover {
             background-color: #138496;
+        }
+
+        .btn-toggle-active {
+            background-color: #dc3545;
+        }
+
+        .btn-toggle-active:hover {
+            background-color: #c82333;
+        }
+
+        .btn-toggle-inactive {
+            background-color: #28a745;
+        }
+
+        button.btn {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: normal;
         }
     </style>
 </head>
@@ -195,8 +218,27 @@
             <strong>説明</strong>
             <span>{service.description}</span>
         </div>
+        <div class="detail-item">
+            <strong>状態</strong>
+            {#if service.isActive}
+            <span class="status-badge active">有効</span>
+            {#else}
+            <span class="status-badge inactive">無効</span>
+            {/if}
+        </div>
+
         <div class="action-button-group">
-            <a href="/admin/services/{service.id}/edit" class="btn-edit-main">内容を変更する</a>
+            <a href="/admin/services/{service.id}/edit" class="btn btn-edit-main">内容を変更する</a>
+
+            {#if service.isActive}
+            <form action="/admin/services/{service.id}/deactivate" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-toggle-active">無効化</button>
+            </form>
+            {#else}
+            <form action="/admin/services/{service.id}/activate" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-toggle-inactive">有効化</button>
+            </form>
+            {/if}
         </div>
         <a href="/admin/services" class="back-link">サービス一覧に戻る</a>
     </div>

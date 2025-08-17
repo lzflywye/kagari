@@ -97,11 +97,47 @@
             background-color: #fafafa;
         }
 
-        td a {
-            display: block;
-            padding: 8px 12px;
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-badge.active {
+            background-color: #28a745;
+        }
+
+        .status-badge.inactive {
+            background-color: #6c757d;
+        }
+
+        .actions a,
+        .actions button {
             text-decoration: none;
-            color: inherit;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .actions a {
+            color: #337ab7;
+            background-color: #f0f8ff;
+            border: 1px solid #cce5ff;
+        }
+
+        .actions button[type="submit"] {
+            background-color: #5cb85c;
+            color: #fff;
+        }
+
+        .actions form {
+            display: inline;
         }
 
         .add-button-container {
@@ -138,14 +174,27 @@
                     <th>サービス名</th>
                     <th>料金</th>
                     <th>説明</th>
+                    <th>状態</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {#for service in services}
                 <tr>
-                    <td><a href="/admin/services/{service.id}">{service.name}</a></td>
-                    <td><a href="/admin/services/{service.id}">¥{service.price.toBigInteger}</a></td>
-                    <td><a href="/admin/services/{service.id}">{service.description}</a></td>
+                    <td>{service.name}</td>
+                    <td>¥{service.price.toBigInteger}</td>
+                    <td>{service.description}</td>
+                    <td>
+                        {#if service.isActive}
+                        <span class="status-badge active">有効</span>
+                        {#else}
+                        <span class="status-badge inactive">無効</span>
+                        {/if}
+                    </td>
+                    <td class="actions">
+                        <a href="/admin/services/{service.id}" class="btn-detail">詳細</a>
+                        <a href="/admin/services/{service.id}/edit" class="btn-edit">編集</a>
+                    </td>
                 </tr>
                 {/for}
             </tbody>

@@ -18,4 +18,6 @@ public class Service extends PanacheEntityBase {
     public BigDecimal price;
     @Column(columnDefinition = "TEXT")
     public String description;
+    @Column(name = "is_active")
+    public boolean isActive;
 }

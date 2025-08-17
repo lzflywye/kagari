@@ -138,12 +138,25 @@ public class AdminServiceResource {
     }
 
     @POST
-    @Path("/{id}/delete")
+    @Path("/{id}/activate")
     @Transactional
-    public Response postServiceDelete(@PathParam("id") UUID id) {
+    public Response postServiceActivate(@PathParam("id") UUID id) {
 
         Service service = Service.findById(id);
-        service.delete();
+        service.isActive = true;
+        service.persist();
+
+        return Response.seeOther(URI.create("/admin/services")).build();
+    }
+
+    @POST
+    @Path("/{id}/deactivate")
+    @Transactional
+    public Response postServiceDeactivate(@PathParam("id") UUID id) {
+
+        Service service = Service.findById(id);
+        service.isActive = false;
+        service.persist();
 
         return Response.seeOther(URI.create("/admin/services")).build();
     }

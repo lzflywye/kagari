@@ -6,7 +6,7 @@
         reserved_date date,
         customer_name varchar(255),
         customer_phone varchar(255),
-        description TEXT,
+        description text,
         status varchar(255),
         primary key (id)
     );
@@ -15,7 +15,8 @@
         id uuid not null,
         name varchar(255),
         price numeric(38,2),
-        description TEXT,
+        description text,
+        is_active boolean default false,
         primary key (id)
     );
 
