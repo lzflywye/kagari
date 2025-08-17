@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.kagari.models.Reservation;
+
+import io.quarkus.panache.common.Sort;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
@@ -33,7 +35,7 @@ public class AdminReservationResource {
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance listAll() {
 
-        List<Reservation> reservations = Reservation.listAll();
+        List<Reservation> reservations = Reservation.listAll(Sort.by("reservedDate").descending());
 
         return adminReservationList.data("reservations", reservations);
     }

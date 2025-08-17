@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.example.kagari.models.Service;
 import com.fasterxml.uuid.Generators;
 
+import io.quarkus.panache.common.Sort;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
@@ -43,7 +44,7 @@ public class AdminServiceResource {
     @Path("/")
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance getServiceList() {
-        List<Service> services = Service.listAll();
+        List<Service> services = Service.listAll(Sort.by("id"));
         return adminServiceList.data("services", services);
     }
 
